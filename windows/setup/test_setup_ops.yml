@@ -1,0 +1,19 @@
+# Copyright 2021-2022 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Take base snapshot if it does not exist
+- block:
+    - include_tasks: win_guest_reconfig.yml
+    - include_tasks: ../../common/vm_take_snapshot.yml
+      vars:
+        snapshot_name: "{{ base_snapshot_name }}"
+    - name: Set fact of base snapshot existence
+      set_fact:
+        base_snapshot_exists: True
+  when: not base_snapshot_exists
+
+# Prepare router VM, vSwitch and portgroup
+- include_tasks: ../../common/network_testbed_setup.yml
+  when:
+    - deploy_router_vm is defined and deploy_router_vm | bool
+    - router_vm_deployed is undefined or not router_vm_deployed | bool

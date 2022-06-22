@@ -30,6 +30,8 @@
 
         # Prepare router VM, vSwitch and portgroup
         - include_tasks: ../../common/network_testbed_setup.yml
+          vars:
+            vm_arch: "{% if guest_os_ansible_architecture == 'aarch64' %}amd64{% else %}x86{% endif %}"
           when: router_vm_deployed is undefined or not router_vm_deployed | bool
 
         - include_tasks: network_adapter_deviceops.yml

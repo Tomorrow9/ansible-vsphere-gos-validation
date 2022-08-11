@@ -89,15 +89,15 @@
     - firmware is defined and firmware | lower == 'efi'
     - secureboot_enabled is defined and secureboot_enabled
 
-- include_tasks: ../../common/vm_wait_network_connected.yml
-- include_tasks: ../../common/vm_get_ip.yml
-  vars:
-    vm_get_ip_timeout: 3600
-- include_tasks: ../utils/win_check_winrm.yml
-  vars:
-    win_check_winrm_timeout: 1800
-- name: "Wait another 1 minute after OS becomes connectable"
-  pause:
-    minutes: 1
-- include_tasks: ../utils/add_windows_host.yml
-- include_tasks: detach_cdrom_iso.yml
+# - include_tasks: ../../common/vm_wait_network_connected.yml
+# - include_tasks: ../../common/vm_get_ip.yml
+# vars:
+#   vm_get_ip_timeout: 3600
+# - include_tasks: ../utils/win_check_winrm.yml
+# vars:
+#   win_check_winrm_timeout: 1800
+# - name: "Wait another 1 minute after OS becomes connectable"
+#   pause:
+#     minutes: 1
+# - include_tasks: ../utils/add_windows_host.yml
+# - include_tasks: detach_cdrom_iso.yml

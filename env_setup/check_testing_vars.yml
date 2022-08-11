@@ -7,8 +7,8 @@
   ansible.builtin.assert:
     that:
       - esxi_hostname is defined and esxi_hostname
-      - esxi_username is defined and esxi_username
-      - esxi_password is defined and esxi_password
+      # - esxi_username is defined and esxi_username
+      # - esxi_password is defined and esxi_password
     fail_msg: "Invalid variables: esxi_hostname, esxi_username and esxi_password must be set"
 
 # Check VM variables

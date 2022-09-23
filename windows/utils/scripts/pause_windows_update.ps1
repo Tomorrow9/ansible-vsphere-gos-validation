@@ -22,7 +22,7 @@ New-ItemProperty -Path $win_auto_update_path -Name 'AUOptions' -PropertyType DWO
 $current_date_time = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
 
 # Get 10 days after date time
-$days_after_date_time = (Get-Date).AddDays(7).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+$days_after_date_time = (Get-Date).AddYears(3).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
 
 # Set Pause Windows update till 7 days after current date time
 New-ItemProperty -Path $win_pause_update_reg_path -Name 'PauseUpdatesStartTime' -PropertyType string -Value $current_date_time -Force

@@ -19,6 +19,14 @@
     - name: Set fact of the NVMe controller instance id list before hotadd
       ansible.builtin.set_fact:
         nvme_ctl_inst_id_list_before: "{{ nvme_ctl_instance_id_list }}"
+    # Set the SetupAPI log verbosity to full
+    # https://learn.microsoft.com/en-us/windows-hardware/drivers/devtest/pnputil-return-values
+    - include_tasks: ../utils/win_execute_cmd.yml
+      vars:
+        win_powershell_cmd: "reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Setup' /v 'LogLevel' /t REG_DWORD /d 0x2000ffff /f"
+    - include_tasks: ../utils/win_shutdown_restart.yml
+      vars:
+        set_win_power_state: "restart"
   when:
     - test_disk_controller_type == "nvme"
     - test_purpose == "hot-add"

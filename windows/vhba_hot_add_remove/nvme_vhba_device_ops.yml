@@ -22,4 +22,16 @@
             test_disk_controller_type: "nvme"
             test_purpose: "hot-add"
       rescue:
+        - include_tasks: ../utils/win_check_file_exist.yml
+          vars:
+            win_check_file_exist_file: "C:\\Windows\\INF\setupapi.app.log"
+        - include_tasks: ../../common/create_directory.yml
+          vars:
+            dir_path: "{{ current_test_log_folder }}"
+            dir_mode: "0777"
+        - include_tasks: ../utils/win_get_file.yml
+          vars:
+            win_get_file_src_path: "C:\\Windows\\INF\setupapi.app.log"
+            win_get_file_dst_path: "{{ current_test_log_folder }}/setupapi.app.log"
+          when: win_check_file_exist_result | bool
         - include_tasks: ../../common/test_rescue.yml

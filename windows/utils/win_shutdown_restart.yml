@@ -28,14 +28,18 @@
     expected_power_state: "poweredOn"
   when: set_win_power_state == "restart"
 
-- name: "Wait 10 seconds to before checking power status"
+- name: "Wait for 10 seconds before checking power status"
   ansible.builtin.pause:
     seconds: 10
-
 - include_tasks: ../../common/vm_wait_power_state.yml
   vars:
     expected_power_status: "{{ expected_power_state }}"
 
-- name: Check winrm connectable after OS restart
-  include_tasks: win_check_winrm.yml
+- name: "Get VM IP address after guest restart in case IP changed"
+  block:
+    - include_tasks: ../../common/vm_get_ip.yml
+      vars:
+        vm_get_ip_timeout: 600
+    - include_tasks: win_check_winrm.yml
+    - include_tasks: add_windows_host.yml
   when: set_win_power_state == "restart"

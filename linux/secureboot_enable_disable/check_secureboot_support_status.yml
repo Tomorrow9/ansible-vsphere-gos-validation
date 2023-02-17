@@ -54,4 +54,4 @@
            (guest_os_ansible_distribution_ver == '3.0' and
               guest_os_ansible_kernel is version('4.19.132-5.ph3-esx', '<=')) or
             guest_os_ansible_distribution_ver is version('2.0', '<=')))
-  when: vm_hardware_version_num | int >= 20
+  when: vm_hardware_version_num | int >= 1000

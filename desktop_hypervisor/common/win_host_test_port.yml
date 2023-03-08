@@ -1,0 +1,42 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Test net connection on specific port on Windows host
+# Parameters:
+#   win_host_port: the port number to get connection status
+#
+- name: "Check required parameter"
+  ansible.builtin.assert:
+    that:
+      - win_host_port is defined
+    fail_msg: "Parameter 'win_host_port' is required to be set in this task: {{ win_host_port | default('') }}"
+
+- name: "Initialize the tested port state"
+  ansible.builtin.set_fact:
+    win_host_port_open: 'NA'
+
+- name: "Test connection on port {{ win_host_port }}"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "(Test-NetConnection -Port {{ win_host_port }} -Computer localhost).TcpTestSucceeded"
+    vm_guest_ip: "{{ host_machine_hostname }}"
+    win_execute_cmd_ignore_error: true
+
+- name: "Set fact of the tested port state"
+  ansible.builtin.set_fact:
+    win_host_port_open: "{{ win_powershell_cmd_output.stdout_lines[0] }}"
+  when:
+    - win_powershell_cmd_output.rc is defined
+    - win_powershell_cmd_output.rc == 0
+    - win_powershell_cmd_output.stdout_lines is defined
+    - win_powershell_cmd_output.stdout_lines | length > 0
+
+- name: "Display the test connection result for port {{ win_host_port }}"
+  ansible.builtin.debug: var=win_host_port_open
+
+- name: "Set fact of unused port"
+  ansible.builtin.set_fact:
+    get_unused_port: "{{ win_host_port }}"
+  when:
+    - win_host_port_open != 'NA'
+    - not win_host_port_open

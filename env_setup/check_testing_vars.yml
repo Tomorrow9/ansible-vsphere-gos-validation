@@ -29,7 +29,8 @@
     - new_vm is undefined or not new_vm | bool
     - testing_testcase_file | dirname | basename == "linux"
 
-- block:
+- name: "Handle create new VM situation"
+  block:
     - name: "Check VM deploy method"
       ansible.builtin.assert:
         that:

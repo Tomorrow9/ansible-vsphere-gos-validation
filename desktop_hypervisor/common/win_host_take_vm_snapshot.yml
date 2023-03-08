@@ -1,0 +1,27 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Take a snapshot of VM on Windows host
+# Parameters:
+#   take_snapshot_name: the snapshot name to be taken
+#
+- name: "Set fact of vmrun command for taking snapshot"
+  ansible.builtin.set_fact:
+    win_vmrun_take_snapshot_cmd: >-
+      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws snapshot "{{ dh_vm_vmx_path }}" "{{ take_snapshot_name }}"' -NoNewWindow
+
+- name: "Taking a snapshot of VM"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "{{ win_vmrun_take_snapshot_cmd }}"
+    vm_guest_ip: "{{ host_machine_hostname }}"
+
+- name: "Get VM snapshot status"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: >-
+      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws listSnapshots "{{ dh_vm_vmx_path }}"' -NoNewWindow
+    vm_guest_ip: "{{ host_machine_hostname }}"
+
+- name: "Display the VM snaphosts"
+  ansible.builtin.debug: var=win_powershell_cmd_output.stdout_lines

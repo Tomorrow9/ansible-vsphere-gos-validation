@@ -1,0 +1,24 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Get VM guest OS IP address on Windows host when
+# VMware Tools is installed in guest
+#
+- name: "Initizalize VM guest IP address"
+  ansible.builtin.set_fact:
+    dh_vm_guest_ip: ''
+
+- name: "Set fact of vmrun command for getting guest IP"
+  ansible.builtin.set_fact:
+    win_vmrun_get_ip_cmd: >-
+      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws getGuestIPAddress "{{ dh_vm_vmx_path }}" -wait' -NoNewWindow
+
+- name: "Gettinng VM guest IP address"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "{{ win_vmrun_get_ip_cmd }}"
+    vm_guest_ip: "{{ host_machine_hostname }}"
+
+- name: "Display VM guest IP address"
+  ansible.builtin.debug:
+    msg: "Get VM '{{ dh_vm_vmx_path }}' guest IP address: {{ dh_vm_guest_ip }}"

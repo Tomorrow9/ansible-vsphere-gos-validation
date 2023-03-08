@@ -25,6 +25,9 @@
   ignore_errors: "{{ win_execute_cmd_ignore_error | default(false) }}"
   delegate_to: "{{ vm_guest_ip }}"
   ignore_unreachable: true
+  become: "{{ win_execute_cmd_become | default(false) }}"
+  become_method: runas
+  become_user: Administrator
 
 - name: "Test VM and guest connection when guest unreachable"
   block:

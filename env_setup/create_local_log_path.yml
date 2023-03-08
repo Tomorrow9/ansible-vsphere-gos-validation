@@ -5,6 +5,12 @@
 - name: "Set the log files path of this test run"
   ansible.builtin.set_fact:
     testrun_log_path: "{{ local_log_path | default(main_playbook_path) }}/logs/{{ vm_name }}/{{ testrun_timestamp }}"
+  when: not in_desktop_hypervisor_testing
+
+- name: "Set the log files path of this test run"
+  ansible.builtin.set_fact:
+    testrun_log_path: "{{ local_log_path | default(main_playbook_path) }}/logs/{{ dh_vm_name | default('test_dh_vm') }}/{{ testrun_timestamp }}"
+  when: in_desktop_hypervisor_testing
 
 - name: "Create the log files directory locally with mode '0755'"
   ansible.builtin.file:
@@ -12,8 +18,9 @@
     state: directory
     mode: '0755'
   register: create_log_path
-- ansible.builtin.debug: var=create_log_path
-  when: enable_debug is defined and enable_debug
+- name: "Display the result of creating test run log directory"
+  ansible.builtin.debug: var=create_log_path
+  when: enable_debug
 
-- name: "Print the path to test run logs"
+- name: "Print the path of current test run logs"
   ansible.builtin.debug: var=testrun_log_path

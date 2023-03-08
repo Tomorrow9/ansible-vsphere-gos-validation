@@ -1,0 +1,93 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+- name: "Check VM existence"
+  include_tasks: ../common/vm_check_exist.yml
+- name: "Check VM '{{ vm_name }}' does not exist"
+  ansible.builtin.assert:
+    that:
+      - not vm_exists
+    fail_msg: "Cann't deploy VM as a VM with same name '{{ vm_name }}' already exists. Please provide a new vm_name."
+  when: new_vm is defined and new_vm | bool
+
+- name: "Check VM '{{ vm_name }}' exists"
+  ansible.builtin.assert:
+    that:
+      - vm_exists
+    fail_msg: "VM '{{ vm_name }}' doesn't exist. Please set new_vm to True to deploy the VM or provide an existing VM name."
+  when: >
+    (new_vm is undefined) or
+    (not new_vm | bool)
+
+- name: "Get existing VM info"
+  include_tasks: ../common/vm_get_vm_info.yml
+  when: vm_exists is defined and vm_exists
+
+- name: "Set fact of the VM datastore path"
+  ansible.builtin.set_fact:
+    vm_datastore_path: "/vmfs/volumes/{{ datastore }}"
+- name: "Display the datatore path of VM files"
+  ansible.builtin.debug: var=vm_datastore_path
+
+# Get vCenter and ESXi version info
+- name: "Get vCenter version and build info"
+  include_tasks: ../common/vcenter_get_version_build.yml
+  when: vcenter_is_defined is defined and vcenter_is_defined
+
+- name: "Get ESXi version and build info"
+  include_tasks: ../common/esxi_get_version_build.yml
+
+- name: "ESXi version {{ esxi_version }} is not supported"
+  ansible.builtin.fail:
+    msg: "This project only supports guest OS validation on ESXi 6.5 or later"
+  when: >
+    (esxi_version == 'N/A') or
+    (esxi_version is version('6.5.0', '<'))
+
+- name: "Get ESXi server model info"
+  include_tasks: ../common/esxi_get_model.yml
+
+- name: "Set ESXi server default shell to /bin/sh on {{ esxi_version }}"
+  ansible.builtin.set_fact:
+    esxi_shell: "/bin/sh"
+  when: esxi_version is version('8.0.0', '<')
+
+# Refer to https://kb.vmware.com/s/article/87386
+- name: "Set ESXi server default shell to /bin/supershell on {{ esxi_version }}"
+  ansible.builtin.set_fact:
+    esxi_shell: "/bin/supershell"
+  when: esxi_version is version('8.0.0', '>=')
+
+- name: "Add ESXi host into memory inventory"
+  include_tasks: ../common/add_host_in_memory_inventory.yml
+  vars:
+    add_host_in_memory_inventory_ip: "{{ esxi_hostname }}"
+    add_host_in_memory_inventory_gp: "esxi"
+    add_host_in_memory_inventory_user: "{{ esxi_username }}"
+    add_host_in_memory_inventory_pwd: "{{ esxi_password }}"
+    add_host_in_memory_inventory_python: "/bin/python"
+    add_host_in_memory_inventory_ssh_pipeline: true
+    add_host_in_memory_inventory_remote_tmp: "{{ vm_datastore_path }}"
+    add_host_in_memory_inventory_shell: "{{ esxi_shell }}"
+
+# Enable guest IP hack on ESXi host to get VM IP address when
+# there is no VMware tools installed or VMware tools is not up
+- name: "Enable guest IP hack on ESXi host"
+  include_tasks: ../common/esxi_enable_guest_ip_hack.yml
+
+- name: "Handle existing VM situation"
+  block:
+    - name: "Not cleanup old snapshot by default"
+      ansible.builtin.set_fact:
+        cleanup_old_snapshots: false
+      when: cleanup_old_snapshots is undefined
+
+    - name: "Cleanup existing snapshots of existing VM"
+      include_tasks: ../common/vm_cleanup_snapshot.yml
+      when: cleanup_old_snapshots | bool
+
+    - name: "Check existing VM settings"
+      include_tasks: check_vm_settings.yml
+  when: >
+    (new_vm is undefined) or
+    (not new_vm | bool)

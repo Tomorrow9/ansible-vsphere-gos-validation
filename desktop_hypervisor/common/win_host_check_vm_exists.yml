@@ -1,0 +1,49 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Get VM list in Windows host can check if specified VM with path exists.
+# Parameters:
+#   dh_host_vmrun_path: the file path of vmrun.exe tool.
+#   dh_vm_vmx_path: the vmx file path of VM.
+# Return:
+#   dh_vm_check_exist: true or false.
+#
+- name: "Initialize the fact of running VM existence status"
+  ansible.builtin.set_fact:
+    dh_vm_check_exist: false
+    dh_vm_vmx_check_exist: false
+
+- name: "Get running VM list"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: >-
+      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList "-T ws list" -NoNewWindow
+    vm_guest_ip: "{{ host_machine_hostname }}"
+
+- name: "Set fact of running VM exists"
+  ansible.builtin.set_fact:
+    dh_vm_check_exist: true
+    dh_vm_vmx_check_exist: true
+  when:
+    - win_powershell_cmd_output.rc is defined
+    - win_powershell_cmd_output.rc == 0
+    - win_powershell_cmd_output.stdout_lines is defined
+    - "dh_vm_vmx_path in win_powershell_cmd_output.stdout_lines"
+
+- name: "Check VM vmx file exists"
+  block:
+    - name: "Get VM vmx file existence status"
+      include_tasks: ../../windows/utils/win_check_file_exist.yml
+      vars:
+        win_check_file_exist_file: "{{ dh_vm_vmx_path }}"
+        vm_guest_ip: "{{ host_machine_hostname }}"
+    - name: "Set fact of VM vmx file existence status"
+      ansible.builtin.set_fact:
+        dh_vm_vmx_check_exist: "{{ win_check_file_exist_result }}"
+  when: not dh_vm_check_exist
+
+- name: "Display the VM existence status"
+  ansible.builtin.debug:
+    msg:
+      - "VM '{{ dh_vm_vmx_path }}' exists in running VM list: {{ dh_vm_check_exist }}"
+      - "VM vmx file '{{ dh_vm_vmx_path }}' exists: {{ dh_vm_vmx_check_exist }}"

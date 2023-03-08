@@ -1,0 +1,83 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Description:
+#   This test case is used for installing Workstation in Linux or Windows machine.
+#
+- name: install_workstation
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: "Test case block"
+      block:
+        - name: "Test case is blocked"
+          include_tasks: ../../common/skip_test_case.yml
+          vars:
+            skip_msg: "Required parameter 'workstation_download_url' is not defined to be a valid value: '{{ workstation_download_url | default('') }}'"
+            skip_reason: "Blocked"
+          when:
+            - workstation_download_url is undefined or not workstation_download_url
+
+        - name: "Handle host VM deployed on ESXi host situation"
+          block:
+            - name: "Test setup for host VM"
+              include_tasks: "../../{{ host_machine_type }}/setup/test_setup.yml"
+            - name: "Set fact of current test case name"
+              ansible.builtin.set_fact:
+                current_testcase_name: "install_workstation_in_{{ host_machine_type }}_host_vm"
+            - name: "Set host machine IP to be variable 'vm_guest_ip' used in utils tasks"
+              ansible.builtin.set_fact:
+                host_machine_hostname: "{{ vm_guest_ip }}"
+          when: is_vsphere_env
+ 
+        - name: "Handle single host machine situation"
+          block:
+            - name: "Set fact of host machine OS type"
+              ansible.builtin.set_fact:
+                host_machine_type: "{{ host_machine_type | lower }}"
+            - name: "Setup existing host machine"
+              include_tasks: setup_dh_host.yml
+          when: not is_vsphere_env
+
+        - name: "Check Workstation installed status in Windows host"
+          include_tasks: ../../windows/utils/win_get_software_install_status.yml
+          vars:
+            win_software_name: "VMware Workstation"
+            vm_guest_ip: "{{ host_machine_hostname }}"
+
+        - name: "Skip test case"
+          include_tasks: ../../common/skip_test_case.yml
+          vars:
+            skip_msg: "Test case '{{ ansible_play_name }}' is skipped because Workstation is already installed, while 'update_workstation' is set to: {{ update_workstation | default(false) }}"
+            skip_reason: "Skipped"
+          when:
+            - update_workstation is undefined or not update_workstation
+            - win_software_is_installed
+
+        - name: "Enable host VM nested virtualization"
+          include_tasks: enable_host_vm_nested_virtual.yml
+          when: is_vsphere_env
+
+        - name: "Install Workstation in Windows host"
+          block:
+            # - name: "Uninstall Workstation firstly"
+            # include_tasks: TBD.yml
+            # when:
+            # - win_software_is_installed
+            # - update_workstation is defined and update_workstation
+            - name: "Install Workstation"
+              include_tasks: install_ws_windows_host.yml
+          when: host_machine_type == "windows"
+
+        # - name: "Install Workstation in Linux host"
+        #   include_tasks: TBD
+        #   when: host_machine_type == "linux"
+        - name: "Set fact of Desktop Hypervisor is installed"
+          ansible.builtin.set_fact:
+            dh_host_installed: true
+      rescue:
+        - name: "Test case failure"
+          include_tasks: ../../common/test_rescue.yml
+          vars:
+            exit_testing_when_fail: true
+          when: is_vsphere_env

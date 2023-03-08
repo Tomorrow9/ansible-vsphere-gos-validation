@@ -17,6 +17,10 @@
   delegate_to: "{{ vm_guest_ip }}"
   register: win_check_file_info
   ignore_errors: true
+  become: "{{ win_check_file_exist_become | default(false) }}"
+  become_method: runas
+  become_user: Administrator
+
 - name: Display the returned file info
   ansible.builtin.debug: var=win_check_file_info
   when: enable_debug is defined and enable_debug

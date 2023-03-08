@@ -1,0 +1,22 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Power on VM on Windows host
+- name: "Set fact of vmrun command for starting VM"
+  ansible.builtin.set_fact:
+    win_vmrun_start_cmd: >-
+      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws start "{{ dh_vm_vmx_path }}" nogui'
+
+- name: "Starting VM"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "{{ win_vmrun_start_cmd }}"
+    vm_guest_ip: "{{ host_machine_hostname }}"
+    win_execute_cmd_become: true
+
+- name: "Get VM status"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: >-
+      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList "-T ws list" -NoNewWindow
+    vm_guest_ip: "{{ host_machine_hostname }}"

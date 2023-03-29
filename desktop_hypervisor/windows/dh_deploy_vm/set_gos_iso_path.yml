@@ -49,7 +49,9 @@
       vars:
         win_check_file_exist_file: "{{ dh_guest_iso_path }}"
         vm_guest_ip: "{{ host_machine_hostname }}"
-        win_check_file_exist_become: true
+        win_check_file_become: true
+        win_check_file_become_user: "{{ host_machine_username }}"
+
     - name: "Make sure guest OS image file exists"
       ansible.builtin.assert:
         that:

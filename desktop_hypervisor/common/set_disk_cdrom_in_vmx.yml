@@ -10,6 +10,11 @@
 #   dh_vm_disk_unit_num: the unit number of disk attached to disk contorller.
 #   dh_vm_boot_disk_file: the name of disk vmdk file in VM folder.
 #
+- name: "Initialize the facts of disk config list and cdrom config list"
+  ansible.builtin.set_fact:
+    disk_config_vmx: []
+    cdrom_config_vmx: []
+
 - name: "Set fact of disk controller type to lower case"
   ansible.builtin.set_fact:
     dh_vm_boot_disk_controller: "{{ dh_vm_boot_disk_controller | lower }}"

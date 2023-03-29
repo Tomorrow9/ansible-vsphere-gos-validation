@@ -18,6 +18,10 @@
           when:
             - workstation_download_url is undefined or not workstation_download_url
 
+        - name: "Initialize Desktop Hypervisor install status and installed path"
+          ansible.builtin.set_fact:
+            dh_host_installed: false
+            dh_host_installed_path: ''
         - name: "Handle host VM deployed on ESXi host situation"
           block:
             - name: "Test setup for host VM"
@@ -39,12 +43,14 @@
               include_tasks: setup_dh_host.yml
           when: not is_vsphere_env
 
-        - name: "Check Workstation installed status in Windows host"
+        - name: "Check Workstation install status in Windows host"
           include_tasks: ../../windows/utils/win_get_software_install_status.yml
           vars:
             win_software_name: "VMware Workstation"
             vm_guest_ip: "{{ host_machine_hostname }}"
-
+        - name: "Set fact of Workstation install status"
+          ansible.builtin.set_fact:
+            dh_host_installed: "{{ win_software_is_installed }}"
         - name: "Skip test case"
           include_tasks: ../../common/skip_test_case.yml
           vars:
@@ -52,7 +58,7 @@
             skip_reason: "Skipped"
           when:
             - update_workstation is undefined or not update_workstation
-            - win_software_is_installed
+            - dh_host_installed
 
         - name: "Enable host VM nested virtualization"
           include_tasks: enable_host_vm_nested_virtual.yml
@@ -72,9 +78,12 @@
         # - name: "Install Workstation in Linux host"
         #   include_tasks: TBD
         #   when: host_machine_type == "linux"
-        - name: "Set fact of Desktop Hypervisor is installed"
-          ansible.builtin.set_fact:
-            dh_host_installed: true
+
+        - name: "Diskplay Desktop Hypervisor status"
+          ansible.builtin.debug:
+            msg:
+              - "Desktop Hypervisor is installed: {{ dh_host_installed }}"
+              - "Desktop Hypervisor is installed to : {{ dh_host_installed_path }}"
       rescue:
         - name: "Test case failure"
           include_tasks: ../../common/test_rescue.yml

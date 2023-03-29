@@ -41,6 +41,7 @@
     vm_guest_ip : "{{ host_machine_hostname }}"
     win_execute_cmd_ignore_error: true
     win_execute_cmd_become: true
+    win_execute_cmd_become_user: "{{ host_machine_username }}"
 
 - name: "Get mounted drive X:"
   include_tasks: ../../windows/utils/win_execute_cmd.yml
@@ -49,6 +50,8 @@
     vm_guest_ip: "{{ host_machine_hostname }}"
     win_execute_cmd_ignore_error: true
     win_execute_cmd_become: true
+    win_execute_cmd_become_user: "{{ host_machine_username }}"
+
 - name: "Check mounted drive X:"
   ansible.builtin.assert:
     that:

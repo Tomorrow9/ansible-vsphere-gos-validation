@@ -79,6 +79,9 @@
     win_software_name: "VMware Workstation"
     vm_guest_ip: "{{ host_machine_hostname }}"
 
-- name: "Set fact of Workstation default install path"
+- name: "Set fact of Desktop Hypervisor is installed"
   ansible.builtin.set_fact:
-    dh_installed_path: "{{ 'C:\\Program Files (x86)\\VMware\\VMware Workstation' if (workstation_install_path is undefined or not workstation_install_path) else workstation_install_path }}"
+    dh_host_installed: true
+- name: "Set fact of Workstation installed path"
+  ansible.builtin.set_fact:
+    dh_host_installed_path: "{{ 'C:\\Program Files (x86)\\VMware\\VMware Workstation' if (workstation_install_path is undefined or not workstation_install_path) else workstation_install_path }}"

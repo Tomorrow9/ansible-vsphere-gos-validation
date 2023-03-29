@@ -1,18 +1,35 @@
 # Copyright 2023 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
 ---
-# Power on VM on Windows host
-- name: "Set fact of vmrun command for starting VM"
+# Start VM in Windows host
+- name: "Set fact of PsExec64.exe tool paths"
   ansible.builtin.set_fact:
-    win_vmrun_start_cmd: >-
-      Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws start "{{ dh_vm_vmx_path }}" nogui'
+    psexec_path_local: "../../tools/PsExec64.exe"
+    psexec_path_remote: "C:\\PsExec64.exe"
+
+- name: "Copy PsExec64.exe tool to Windows host"
+  include_tasks: ../../windows/utils/win_copy_file_from_local.yml
+  vars:
+    src_path_local: "{{ psexec_path_local }}"
+    dest_path_remote: "{{ psexec_path_remote }}"
+    vm_guest_ip: "{{ host_machine_hostname }}"
 
 - name: "Starting VM"
-  include_tasks: ../../windows/utils/win_execute_cmd.yml
-  vars:
-    win_powershell_cmd: "{{ win_vmrun_start_cmd }}"
-    vm_guest_ip: "{{ host_machine_hostname }}"
-    win_execute_cmd_become: true
+  community.windows.win_psexec:
+    command: >-
+      "{{ dh_host_vmrun_path }}" -T ws start "{{ dh_vm_vmx_path }}" nogui
+    executable: "{{ psexec_path_remote }}"
+    hostnames:
+    - localhost
+  register: start_vm_result
+  delegate_to: "{{ host_machine_hostname }}"
+  # become: true
+  # become_method: runas
+  # become_user: "{{ host_machine_username }}"
+
+- name: "Pause 5 seconds after starting VM"
+  ansible.builtin.pause:
+    seconds: 5
 
 - name: "Get VM status"
   include_tasks: ../../windows/utils/win_execute_cmd.yml

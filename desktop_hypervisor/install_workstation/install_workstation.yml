@@ -43,6 +43,15 @@
               include_tasks: setup_dh_host.yml
           when: not is_vsphere_env
 
+        - name: "Skip test case"
+          include_tasks: ../../common/skip_test_case.yml
+          vars:
+            skip_msg: "Skip test case due to VMware Workstation is supported to be installed on 64bit OS, this host machine OS is: {{ guest_os_ansible_architecture | default('') }}."
+            skip_reason: "Not Supported"
+          when:
+            - guest_os_ansible_architecture is defined
+            - guest_os_ansible_architecture != "64-bit"
+
         - name: "Check Workstation install status in Windows host"
           include_tasks: ../../windows/utils/win_get_software_install_status.yml
           vars:

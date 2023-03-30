@@ -1,7 +1,7 @@
 # Copyright 2023 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
 ---
-# Get available TCP port from 5910 to 6001 can be used as VNC server port in Windows host.
+# Get available TCP port from 5901 to 6001 can be used as VNC server port in Windows host.
 # Please refer to VMware doc:
 # https://docs.vmware.com/en/VMware-Workstation-Pro/17/com.vmware.ws.using.doc/
 # GUID-7172F398-D1DA-4BF2-86F8-BF1C9C2EBFA3.html

@@ -91,9 +91,9 @@
 
 - name: "Send keystrokes when VM firmware is EFI"
   block:
-    - name: "Pause 3 seconds before sending keystrokes"
+    - name: "Pause 15 seconds before sending keystrokes"
       ansible.builtin.pause:
-        seconds: 3
+        seconds: 15
     - name: "Send down, down, enter, enter keys"
       ansible.builtin.shell: "vncdo -v -s {{ host_machine_hostname }}::{{ dh_vm_vnc_port }} key down key down key enter key enter"
       register: vncdo_send_keys

@@ -53,6 +53,7 @@
     win_powershell_cmd: "{{ win_vdisk_manager_cmd }}"
     vm_guest_ip: "{{ host_machine_hostname }}"
     win_execute_cmd_become: true
+    win_execute_cmd_become_user: "{{ host_machine_username }}"
 
 - name: "Get disk file status"
   include_tasks: ../../windows/utils/win_check_file_exist.yml

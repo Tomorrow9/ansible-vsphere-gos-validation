@@ -89,9 +89,9 @@
   vars:
     win_powershell_cmd: "{{ ws_install_cmd }}"
     vm_guest_ip: "{{ host_machine_hostname }}"
-- name: "Pause 15 seconds"
+- name: "Pause 30 seconds"
   ansible.builtin.pause:
-    seconds: 15
+    seconds: 30
 - name: "Check VMware Workstation is installed"
   include_tasks: ../../windows/utils/win_wait_installed_software.yml
   vars:

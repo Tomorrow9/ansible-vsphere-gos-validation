@@ -27,9 +27,9 @@
   # become_method: runas
   # become_user: "{{ host_machine_username }}"
 
-- name: "Pause 5 seconds after starting VM"
+- name: "Pause 15 seconds after starting VM"
   ansible.builtin.pause:
-    seconds: 5
+    seconds: 15
 
 - name: "Get VM status"
   include_tasks: ../../windows/utils/win_execute_cmd.yml

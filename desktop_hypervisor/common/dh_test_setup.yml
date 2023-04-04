@@ -6,7 +6,7 @@
     - name: "Test setup for host VM"
       include_tasks: "../../{{ host_machine_type }}/setup/test_setup.yml"
       vars:
-        create_current_test_folder: "{{ create_current_test_folder | default(false) }}"
+        create_current_test_folder: "{{ create_dh_test_folder | default(false) }}"
     - name: "Set host machine IP to be variable 'vm_guest_ip' used in utils tasks"
       ansible.builtin.set_fact:
         host_machine_hostname: "{{ vm_guest_ip }}"
@@ -22,7 +22,7 @@
     - name: "Set current test case index, name and log folder"
       include_tasks: ../../common/set_current_testcase_facts.yml
       vars:
-        create_test_log_folder: "{{ create_current_test_folder | default(false) }}"
+        create_test_log_folder: "{{ create_dh_test_folder | default(false) }}"
   when: not is_vsphere_env
 
 - name: "Set facts of VM path and vmx path"

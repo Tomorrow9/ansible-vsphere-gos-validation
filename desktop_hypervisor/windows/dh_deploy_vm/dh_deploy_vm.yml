@@ -15,7 +15,7 @@
         - name: "Test setup"
           include_tasks: ../../common/dh_test_setup.yml
           vars:
-            create_current_test_folder: true
+            create_dh_test_folder: true
             require_dh_vm_exists: "{{ true if (dh_new_vm is undefined or not dh_new_vm | bool) else false }}"
 
         - name: "Skip test case"

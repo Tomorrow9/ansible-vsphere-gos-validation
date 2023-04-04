@@ -18,6 +18,10 @@
           when:
             - workstation_download_url is undefined or not workstation_download_url
 
+        - name: "Initialize Desktop Hypervisor install status and installed path"
+          ansible.builtin.set_fact:
+            dh_host_installed: false
+            dh_host_installed_path: ''
         - name: "Test setup"
           include_tasks: ../common/dh_test_setup.yml
           vars:
@@ -40,10 +44,6 @@
             current_testcase_name: "{{ current_testcase_name ~ '_vm' }}" 
           when: is_vsphere_env
 
-        - name: "Initialize Desktop Hypervisor install status and installed path"
-          ansible.builtin.set_fact:
-            dh_host_installed: false
-            dh_host_installed_path: ''
         - name: "Check Workstation install status in Windows host"
           include_tasks: ../../windows/utils/win_get_software_install_status.yml
           vars:

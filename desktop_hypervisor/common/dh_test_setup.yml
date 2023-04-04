@@ -47,7 +47,7 @@
 - name: "Check if Workstation is installed in host"
   block:
     - name: "Get Workstation install status in Windows host"
-      include_tasks: ../../../windows/utils/win_get_software_install_status.yml
+      include_tasks: ../../windows/utils/win_get_software_install_status.yml
       vars:
         win_software_name: "VMware Workstation"
         vm_guest_ip: "{{ host_machine_hostname }}"
@@ -59,7 +59,7 @@
 - name: "Get Workstation installed path"
   block:
     - name: "Get Workstation installed path in Windows host"
-      include_tasks: ../../../windows/utils/win_get_software_install_path.yml
+      include_tasks: ../../windows/utils/win_get_software_install_path.yml
       vars:
         win_software_name: "VMware Workstation"
         vm_guest_ip: "{{ host_machine_hostname }}"
@@ -71,7 +71,7 @@
     - dh_host_installed_path is undefined or not dh_host_installed_path
 
 - name: "Skip test case"
-  include_tasks: ../../../common/skip_test_case.yml
+  include_tasks: ../../common/skip_test_case.yml
   vars:
     skip_msg: "Test case '{{ current_testcase_name }}' is blocked because Workstation install status: '{{ dh_host_installed }}' is not true, or Workstation install path: '{{ dh_host_installed_path }}' is empty."
     skip_reason: "Blocked"
@@ -98,7 +98,7 @@
 - name: "Check if VM exists"
   block:
     - name: "Get VM existence status"
-      include_tasks: ../../common/win_host_check_vm_exists.yml
+      include_tasks: win_host_check_vm_exists.yml
     - name: "Set fact of VM existence status"
       ansible.builtin.set_fact:
         dh_vm_exists: "{{ dh_vm_check_exist }}"
@@ -109,7 +109,7 @@
     - ansible_play_name != "install_workstation"
 
 - name: "Skip test case"
-  include_tasks: ../../../common/skip_test_case.yml
+  include_tasks: ../../common/skip_test_case.yml
   vars:
     skip_msg: "Test case '{{ current_testcase_name }}' is blocked because VM '{{ dh_vm_name }}' does not exist."
     skip_reason: "Blocked"

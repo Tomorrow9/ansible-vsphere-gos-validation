@@ -13,7 +13,7 @@
     - name: "Test case block"
       block:
         - name: "Test setup"
-          include_tasks: ../setup/dh_test_setup.yml
+          include_tasks: ../../common/dh_test_setup.yml
           vars:
             create_current_test_folder: true
             require_dh_vm_exists: "{{ true if (dh_new_vm is undefined or not dh_new_vm | bool) else false }}"

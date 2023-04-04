@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ---
 # Prepare OS install ISO file
-- name: "Set fact of VM CDROM not use physical drive on host"
+- name: "Initialize guest VM CDROM not use physical drive on host"
   ansible.builtin.set_fact:
     dh_vm_cdrom_use_physical: false
 

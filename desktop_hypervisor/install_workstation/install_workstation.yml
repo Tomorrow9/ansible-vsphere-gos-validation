@@ -18,32 +18,10 @@
           when:
             - workstation_download_url is undefined or not workstation_download_url
 
-        - name: "Initialize Desktop Hypervisor install status and installed path"
-          ansible.builtin.set_fact:
-            dh_host_installed: false
-            dh_host_installed_path: ''
-        - name: "Handle host VM deployed on ESXi host situation"
-          block:
-            - name: "Test setup for host VM"
-              include_tasks: "../../{{ host_machine_type }}/setup/test_setup.yml"
-            - name: "Set fact of current test case name"
-              ansible.builtin.set_fact:
-                current_testcase_name: "install_workstation_in_{{ host_machine_type }}_host_vm"
-            - name: "Set host machine IP to be variable 'vm_guest_ip' used in utils tasks"
-              ansible.builtin.set_fact:
-                host_machine_hostname: "{{ vm_guest_ip }}"
-                host_machine_username: "{{ vm_username }}"
-                host_machine_password: "{{ vm_password }}"
-          when: is_vsphere_env
- 
-        - name: "Handle single host machine situation"
-          block:
-            - name: "Set fact of host machine OS type"
-              ansible.builtin.set_fact:
-                host_machine_type: "{{ host_machine_type | lower }}"
-            - name: "Setup existing host machine"
-              include_tasks: setup_dh_host.yml
-          when: not is_vsphere_env
+        - name: "Test setup"
+          include_tasks: ../common/dh_test_setup.yml
+          vars:
+            create_current_test_folder: true
 
         - name: "Skip test case"
           include_tasks: ../../common/skip_test_case.yml
@@ -54,6 +32,18 @@
             - guest_os_ansible_architecture is defined
             - guest_os_ansible_architecture != "64-bit"
 
+        - name: "Set fact of current test case name"
+          ansible.builtin.set_fact:
+            current_testcase_name: "install_workstation_in_{{ host_machine_type }}_host"
+        - name: "Set fact of current test case name"
+          ansible.builtin.set_fact:
+            current_testcase_name: "{{ current_testcase_name ~ '_vm' }}" 
+          when: is_vsphere_env
+
+        - name: "Initialize Desktop Hypervisor install status and installed path"
+          ansible.builtin.set_fact:
+            dh_host_installed: false
+            dh_host_installed_path: ''
         - name: "Check Workstation install status in Windows host"
           include_tasks: ../../windows/utils/win_get_software_install_status.yml
           vars:
@@ -77,14 +67,16 @@
 
         - name: "Check host VM nested virtualization"
           block:
-            - name: "Get host VM nested virtualization"
+            - name: "Get if host require nested virtualization"
               include_tasks: check_host_vm_nested_virtual.yml
             - name: "Skip test case"
               include_tasks: ../../common/skip_test_case.yml
               vars:
                 skip_msg: "Test case '{{ ansible_play_name }}' is blocked because host machine is a virtual machine while VM nested virtualization is not enabled."
                 skip_reason: "Blocked"
-              when: not dh_host_nest_virtual
+              when:
+                - dh_host_is_vm
+                - not dh_host_nest_virtual
           when: not is_vsphere_env
 
         - name: "Install Workstation in Windows host"
@@ -107,6 +99,9 @@
             msg:
               - "Desktop Hypervisor is installed: {{ dh_host_installed }}"
               - "Desktop Hypervisor is installed to : {{ dh_host_installed_path }}"
+        - name: "Reset base snapshot"
+          include_tasks: ../../common/reset_base_snapshot.yml
+          when: is_vsphere_env
       rescue:
         - name: "Test case failure"
           include_tasks: ../../common/test_rescue.yml

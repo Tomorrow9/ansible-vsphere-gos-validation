@@ -1,10 +1,29 @@
 # Copyright 2023 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
 ---
-- name: "Set current test case index, name and log folder"
-  include_tasks: ../../../common/set_current_testcase_facts.yml
-  vars:
-    create_test_log_folder: true
+- name: "Handle host VM deployed on ESXi host situation"
+  block:
+    - name: "Test setup for host VM"
+      include_tasks: "../../{{ host_machine_type }}/setup/test_setup.yml"
+      vars:
+        create_current_test_folder: "{{ create_current_test_folder | default(false) }}"
+    - name: "Set host machine IP to be variable 'vm_guest_ip' used in utils tasks"
+      ansible.builtin.set_fact:
+        host_machine_hostname: "{{ vm_guest_ip }}"
+        host_machine_username: "{{ vm_username }}"
+        host_machine_password: "{{ vm_password }}"
+  when: is_vsphere_env
+
+- name: "Handle single host machine situation"
+  block:
+    - name: "Set fact of host machine OS type"
+      ansible.builtin.set_fact:
+        host_machine_type: "{{ host_machine_type | lower }}"
+    - name: "Set current test case index, name and log folder"
+      include_tasks: ../../common/set_current_testcase_facts.yml
+      vars:
+        create_test_log_folder: "{{ create_current_test_folder | default(false) }}"
+  when: not is_vsphere_env
 
 - name: "Set facts of VM path and vmx path"
   block:
@@ -56,19 +75,23 @@
   vars:
     skip_msg: "Test case '{{ current_testcase_name }}' is blocked because Workstation install status: '{{ dh_host_installed }}' is not true, or Workstation install path: '{{ dh_host_installed_path }}' is empty."
     skip_reason: "Blocked"
-  when: >
-    (not dh_host_installed) or
-    (not dh_host_installed_path)
+  when:
+    - (not dh_host_installed) or (not dh_host_installed_path)
+    - ansible_play_name != "install_workstation"
 
 - name: "Set fact of 'vmware-vdiskmanager.exe' tool path"
   ansible.builtin.set_fact:
     dh_host_vdisk_manager_path: "{{ dh_host_installed_path }}\\vmware-vdiskmanager.exe"
-  when: dh_host_vdisk_manager_path is undefined or not dh_host_vdisk_manager_path
+  when:
+    - dh_host_installed_path
+    - dh_host_vdisk_manager_path is undefined or not dh_host_vdisk_manager_path
 
 - name: "Set facts of 'vmrun.exe' tool path"
   ansible.builtin.set_fact:
     dh_host_vmrun_path: "{{ dh_host_installed_path }}\\vmrun.exe"
-  when: dh_host_vmrun_path is undefined or not dh_host_vmrun_path
+  when:
+    - dh_host_installed_path
+    - dh_host_vmrun_path is undefined or not dh_host_vmrun_path
 
 # Test cases except 'dh_deploy_vm' depend on VM deployed on Desktop Hypervisor,
 # 'dh_vm_exists' is set to true in test case 'dh_deploy_vm'.
@@ -83,6 +106,7 @@
   when:
     - dh_host_installed
     - dh_vm_exists is undefined or not dh_vm_exists
+    - ansible_play_name != "install_workstation"
 
 - name: "Skip test case"
   include_tasks: ../../../common/skip_test_case.yml
@@ -93,3 +117,4 @@
     - require_dh_vm_exists | default(true)
     - not dh_vm_exists
     - not dh_vm_vmx_exists
+    - ansible_play_name != "install_workstation"

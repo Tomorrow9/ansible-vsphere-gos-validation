@@ -18,30 +18,34 @@
     (iso_nfs_server_username is undefined or not iso_nfs_server_username) or
     (iso_nfs_server_password is undefined or not iso_nfs_server_password)
 
+# Change using this powershell command:
+# New-PSDrive -Name X -Root "{{ iso_nfs_server_path }}" -Persist -PSProvider FileSystem -Scope Global
+# to below command 
 - name: "Set fact of the command to mount NFS datastore"
   ansible.builtin.set_fact:
     win_host_mount_cmd: >-
-      New-PSDrive -Name X -Root "{{ iso_nfs_server_path }}" -Persist -PSProvider FileSystem -Scope Global
+      mount "{{ iso_nfs_server_path }}" X:
 
+# Change using this powershell command:
+# $user = "{{ iso_nfs_server_username }}";
+# $pword = ConvertTo-SecureString -String "{{ iso_nfs_server_password }}" -AsPlainText -Force;
+# $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $user, $pword;
+# New-PSDrive -Name X -Root "{{ iso_nfs_server_path }}" -Persist -PSProvider FileSystem -Scope Global -Credential $cred
+# to below command
 - name: "Set fact of the command to mount NFS datastore with credentials"
   ansible.builtin.set_fact:
     win_host_mount_cmd: >-
-      $user = "{{ iso_nfs_server_username }}";
-      $pword = ConvertTo-SecureString -String "{{ iso_nfs_server_password }}" -AsPlainText -Force;
-      $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $user, $pword;
-      New-PSDrive -Name X -Root "{{ iso_nfs_server_path }}" -Persist -PSProvider FileSystem -Scope Global -Credential $cred
+      mount "{{ iso_nfs_server_path }}" X: -u:{{ iso_nfs_server_username }} -p:{{ iso_nfs_server_password }}
   when:
     - iso_nfs_server_username is defined and iso_nfs_server_username
     - iso_nfs_server_password is defined and iso_nfs_server_password
 
 - name: "Mount NFS datastore in Windows host"
-  include_tasks: ../../windows/utils/win_execute_cmd.yml
-  vars:
-    win_powershell_cmd: "{{ win_host_mount_cmd }}"
-    vm_guest_ip : "{{ host_machine_hostname }}"
-    win_execute_cmd_ignore_error: true
-    win_execute_cmd_become: true
-    win_execute_cmd_become_user: "{{ host_machine_username }}"
+  ansible.windows.win_command: "{{ win_host_mount_cmd }}"
+  delegate_to: "{{ host_machine_hostname }}"
+  become: true
+  become_method: runas
+  become_user: "{{ host_machine_username }}"
 
 - name: "Check mounted drive X: exists"
   include_tasks: ../../windows/utils/win_execute_cmd.yml

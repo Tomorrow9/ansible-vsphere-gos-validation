@@ -65,7 +65,7 @@
 - name: "Add Workstation serial number to install command"
   ansible.builtin.set_fact:
     ws_install_cmd: >-
-      {{ ws_install_file_path }} /s /v/qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 SERIALNUMBER="{{ workstation_serial_number }}"
+      {{ ws_install_file_path }} /s /v/qn EULAS_AGREED=1 /l {{ ws_install_log_file }} AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 SERIALNUMBER="{{ workstation_serial_number }}"
   when:
     - workstation_serial_number is defined
     - workstation_serial_number

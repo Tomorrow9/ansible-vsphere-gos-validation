@@ -104,9 +104,9 @@
         dh_vm_exists: "{{ dh_vm_check_exist }}"
         dh_vm_vmx_exists: "{{ dh_vm_vmx_check_exist }}"
   when:
+    - ansible_play_name != "install_workstation"
     - dh_host_installed
     - dh_vm_exists is undefined or not dh_vm_exists
-    - ansible_play_name != "install_workstation"
 
 - name: "Skip test case"
   include_tasks: ../../common/skip_test_case.yml
@@ -114,7 +114,7 @@
     skip_msg: "Test case '{{ current_testcase_name }}' is blocked because VM '{{ dh_vm_name }}' does not exist."
     skip_reason: "Blocked"
   when:
-    - require_dh_vm_exists | default(true)
-    - not dh_vm_exists
-    - not dh_vm_vmx_exists
     - ansible_play_name != "install_workstation"
+    - require_dh_vm_exists | default(true)
+    - dh_vm_exists is undefined or not dh_vm_exists
+    - dh_vm_vmx_exists is undefined or not dh_vm_vmx_exists

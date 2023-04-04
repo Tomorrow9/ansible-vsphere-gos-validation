@@ -44,7 +44,7 @@
 
 - name: "Check guest OS image file status"
   block:
-    - name: "Get guest OS image file status in Window host"
+    - name: "Get guest OS image file status in Windows host"
       include_tasks: ../../../windows/utils/win_check_file_exist.yml
       vars:
         win_check_file_exist_file: "{{ dh_guest_iso_path }}"

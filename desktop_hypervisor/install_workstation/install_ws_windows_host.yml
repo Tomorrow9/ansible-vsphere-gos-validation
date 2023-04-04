@@ -51,7 +51,7 @@
 - name: "Set fact of Workstation silent install command"
   ansible.builtin.set_fact:
     ws_install_cmd: >-
-      {{ ws_install_file_path }} /s /v/qn EULAS_AGREED=1 /l {{ ws_install_log_file }} AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 
+      {{ ws_install_file_path }} /s /v/qn EULAS_AGREED=1 /l {{ ws_install_log_file }} AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0
 
 - name: "Add Workstation install path to install command"
   ansible.builtin.set_fact:

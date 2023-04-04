@@ -32,6 +32,8 @@
             - name: "Set host machine IP to be variable 'vm_guest_ip' used in utils tasks"
               ansible.builtin.set_fact:
                 host_machine_hostname: "{{ vm_guest_ip }}"
+                host_machine_username: "{{ vm_username }}"
+                host_machine_password: "{{ vm_password }}"
           when: is_vsphere_env
  
         - name: "Handle single host machine situation"
@@ -72,6 +74,18 @@
         - name: "Enable host VM nested virtualization"
           include_tasks: enable_host_vm_nested_virtual.yml
           when: is_vsphere_env
+
+        - name: "Check host VM nested virtualization"
+          block:
+            - name: "Get host VM nested virtualization"
+              include_tasks: check_host_vm_nested_virtual.yml
+            - name: "Skip test case"
+              include_tasks: ../../common/skip_test_case.yml
+              vars:
+                skip_msg: "Test case '{{ ansible_play_name }}' is blocked because host machine is a virtual machine while VM nested virtualization is not enabled."
+                skip_reason: "Blocked"
+              when: not dh_host_nest_virtual
+          when: not is_vsphere_env
 
         - name: "Install Workstation in Windows host"
           block:

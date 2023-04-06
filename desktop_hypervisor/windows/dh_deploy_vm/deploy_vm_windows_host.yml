@@ -102,7 +102,7 @@
 - name: "Send keystrokes when VM firmware is EFI"
   block:
     - name: "Send down, down, enter, enter keys"
-      ansible.builtin.shell: "vncdo -v -s {{ host_machine_hostname }}::{{ dh_vm_vnc_port }} key down key down key enter key enter"
+      ansible.builtin.shell: "vncdo -v -s {{ host_machine_hostname }}::{{ dh_vm_vnc_port }} key down pause 3 key down pause 3 key enter pause 3 key enter"
       register: vncdo_send_keys
     - name: "Display the vncdotool sends keys result"
       ansible.builtin.debug: var=vncdo_send_keys

@@ -16,7 +16,8 @@
 - name: "Set fact of Workstation installation file download path and log path"
   ansible.builtin.set_fact:
     ws_install_file_path: "{{ dh_host_download_path }}{{ ws_install_file_name }}"
-    ws_install_log_file: "{{ dh_host_download_path }}ws_install.log"
+
+# ws_install_log_file: ""
 
 - name: "Download Workstation installation file in Windows host"
   ansible.windows.win_get_url:
@@ -52,12 +53,12 @@
 - name: "Set fact of Workstation silent install command"
   ansible.builtin.set_fact:
     ws_install_cmd: >-
-      {{ ws_install_file_path ~ ' /l ' ~ ws_install_log_file ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0' }}
+      {{ ws_install_file_path ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 REBOOT=ReallySuppress' }}
 
 - name: "Add Workstation install path to install command"
   ansible.builtin.set_fact:
     ws_install_cmd: >-
-      {{ ws_install_file_path ~ ' /l ' ~ ws_install_log_file ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 INSTALLDIR="' ~ workstation_install_path ~ '"' }}
+      {{ ws_install_file_path ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 REBOOT=ReallySuppress INSTALLDIR="' ~ workstation_install_path ~ '"' }}
   when:
     - workstation_install_path is defined
     - workstation_install_path
@@ -66,7 +67,7 @@
 - name: "Add Workstation serial number to install command"
   ansible.builtin.set_fact:
     ws_install_cmd: >-
-      {{ ws_install_file_path ~ ' /l ' ~ ws_install_log_file ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 SERIALNUMBER="' ~ workstation_serial_number ~ '"' }}
+      {{ ws_install_file_path ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 REBOOT=ReallySuppress SERIALNUMBER="' ~ workstation_serial_number ~ '"' }}
   when:
     - workstation_serial_number is defined
     - workstation_serial_number
@@ -75,7 +76,7 @@
 - name: "Add Workstation serial number and install path to install command"
   ansible.builtin.set_fact:
     ws_install_cmd: >-
-      {{ ws_install_file_path ~ ' /l ' ~ ws_install_log_file ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 SERIALNUMBER="' ~ workstation_serial_number ~ '" INSTALLDIR="' ~ workstation_install_path ~ '"' }}
+      {{ ws_install_file_path ~ ' /s /v /qn EULAS_AGREED=1 AUTOSOFTWAREUPDATE=0 DATACOLLECTION=0 REBOOT=ReallySuppress SERIALNUMBER="' ~ workstation_serial_number ~ '" INSTALLDIR="' ~ workstation_install_path ~ '"' }}
   when:
     - workstation_serial_number is defined
     - workstation_serial_number
@@ -92,12 +93,23 @@
   ansible.windows.win_command: "{{ ws_install_cmd }}"
   delegate_to: "{{ host_machine_hostname }}"
   register: ws_install_result
+  failed_when:
+    - ws_install_result.rc is defined
+    - ws_install_result.rc not in [0, 3010, 1614, 1641]
 - name: "Display Workstation silent install result"
   debug: var=ws_install_result
 
 - name: "Pause 30 seconds"
   ansible.builtin.pause:
     seconds: 30
+- name: "Restart host after Workstation install"
+  ansible.windows.win_reboot:
+    reboot_timeout: 600
+  register: restart_guest_os
+  delegate_to: "{{ host_machine_hostname }}"
+- name: "Display the win_reboot result"
+  ansible.builtin.debug: var=restart_guest_os
+
 - name: "Check VMware Workstation is installed"
   include_tasks: ../../windows/utils/win_wait_installed_software.yml
   vars:

@@ -35,9 +35,10 @@
 
 # Need to restart guest OS for Windows client
 - name: "Restart guest OS after enable NFS client features on Windows client"
-  include_tasks: win_shutdown_restart.yml
-  vars:
-    set_win_power_state: "restart"
+  ansible.windows.win_reboot:
+    reboot_timeout: 600
+  register: restart_guest_os
+  delegate_to: "{{ vm_guest_ip }}"
   when: win_target_type == 'client'
 
 - name: "Get NFS-Client feature install state"

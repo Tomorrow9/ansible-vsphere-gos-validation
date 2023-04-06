@@ -18,6 +18,12 @@
     (iso_nfs_server_username is undefined or not iso_nfs_server_username) or
     (iso_nfs_server_password is undefined or not iso_nfs_server_password)
 
+- name: "Enable NFS client in Windows host"
+  include_tasks: ../../windows/utils/win_install_nfs_client.yml
+  vars:
+    win_target_type: "{{ guest_os_product_type | lower }}"
+    vm_guest_ip: "{{ host_machine_hostname }}"
+
 # Change using this powershell command:
 # New-PSDrive -Name X -Root "{{ iso_nfs_server_path }}" -Persist -PSProvider FileSystem -Scope Global
 # to below command 

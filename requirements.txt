@@ -10,3 +10,4 @@ pywinrm
 pypsrp
 pyvmomi
 ansible-core
+vncdotool

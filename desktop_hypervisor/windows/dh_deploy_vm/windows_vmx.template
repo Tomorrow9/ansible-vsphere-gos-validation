@@ -49,7 +49,6 @@ mks.enable3d = "TRUE"
 svga.graphicsMemoryKB = "8388608"
 {% endif %}
 ethernet0.present = "TRUE"
-ethernet0.connectionType = "nat"
 ethernet0.addressType = "generated"
 ethernet0.virtualDev = "{{ dh_vm_network_adapter }}"
 serial0.fileType = "thinprint"

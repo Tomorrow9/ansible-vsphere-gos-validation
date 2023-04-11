@@ -112,3 +112,6 @@
     - name: "Display the vncdotool taking screenshot result"
       ansible.builtin.debug: var=vncdo_take_screenshot
   when: dh_vm_firmware | lower == 'efi'
+
+- name: "Get Guest VM IP"
+  include_tasks: ../../common/win_host_get_guest_ip.yml

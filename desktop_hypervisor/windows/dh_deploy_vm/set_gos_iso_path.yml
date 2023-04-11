@@ -6,6 +6,29 @@
   ansible.builtin.set_fact:
     dh_vm_cdrom_use_physical: false
 
+# iso_http_server_path is configured
+- name: "Download ISO file to Host"
+  block:
+    - name: "Set ISO download URL fact"
+      ansible.builtin.set_fact:
+        dh_guest_iso_full_url: "{{ iso_http_server_path }}{{ dh_guest_iso_path }}"
+        dh_guest_iso_file_name: "{{ dh_guest_iso_path | ansible.builtin.basename }}"
+    - name: "Display ISO file info"
+      ansible.builtin.debug:
+        msg:
+          - "ISO URL: {{ dh_guest_iso_full_url }}"
+          - "ISO file name: {{ dh_guest_iso_file_name }}"
+    - name: "win_get_url ISO file to Host downloads folder"
+      ansible.windows.win_get_url:
+        url: "{{ dh_guest_iso_full_url }}"
+        dest: "{{ dh_host_download_path }}{{ dh_guest_iso_file_name }}"
+        validate_certs: false
+      delegate_to: "{{ host_machine_hostname }}"
+    - name: "Set fact of ISO file path"
+      ansible.builtin.set_fact:
+        dh_guest_iso_path: "{{ dh_host_download_path }}{{ dh_guest_iso_file_name }}"
+  when: iso_http_server_path is defined and iso_http_server_path
+
 # iso_nfs_server_path is configured
 - name: "Set guest OS image file path in mounted NFS directory"
   block:
@@ -49,8 +72,8 @@
       vars:
         win_check_file_exist_file: "{{ dh_guest_iso_path }}"
         vm_guest_ip: "{{ host_machine_hostname }}"
-        win_check_file_become: true
-        win_check_file_become_user: "{{ host_machine_username }}"
+#        win_check_file_become: true
+#        win_check_file_become_user: "{{ host_machine_username }}"
 
     - name: "Make sure guest OS image file exists"
       ansible.builtin.assert:

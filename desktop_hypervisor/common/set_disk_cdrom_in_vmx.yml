@@ -7,7 +7,7 @@
 #   dh_vm_vmx_file_path: the vmx file path to be changed.
 #   dh_vm_disk_controller_type: the disk controller type, valid values are 'nvme', 'sata',
 #   dh_vm_disk_controller_num: the bus number of disk controller.
-#   dh_vm_disk_unit_num: the unit number of disk attached to disk contorller.
+#   dh_vm_disk_unit_num: the unit number of disk attached to disk controller.
 #   dh_vm_boot_disk_file: the name of disk vmdk file in VM folder.
 #
 - name: "Initialize the facts of disk config list and cdrom config list"
@@ -72,6 +72,9 @@
           - sata0:1.deviceType = "cdrom-image"
           - sata0:1.fileName = "{{ unattend_install_iso }}"
           - sata0:1.present = "TRUE"
+          - sata0:3.deviceType = "cdrom-image"
+          - sata0:3.fileName = "C:\Program Files (x86)\VMware\VMware Workstation\windows.iso"
+          - sata0:3.present = "TRUE"
       when: dh_vm_boot_disk_controller != 'sata'
     - name: "Disk controller is SATA"
       ansible.builtin.set_fact:
@@ -81,7 +84,9 @@
           - sata0:1.present = "TRUE"
           - sata0:2.deviceType = "cdrom-image"
           - sata0:2.fileName = "{{ unattend_install_iso }}"
-          - sata0:2.present = "TRUE"
+          - sata0:3.present = "TRUE"
+          - sata0:3.deviceType = "cdrom-image"
+          - sata0:3.fileName = "C:\Program Files (x86)\VMware\VMware Workstation\windows.iso"
       when: dh_vm_boot_disk_controller == 'sata'
   when: dh_vm_cdrom_controller | lower == 'sata'
 
@@ -96,6 +101,9 @@
           - ide0:1.deviceType = "cdrom-image"
           - ide0:1.fileName = "{{ unattend_install_iso }}"
           - ide0:1.present = "TRUE"
+          - ide0:3.deviceType = "cdrom-image"
+          - ide0:3.fileName = "C:\Program Files (x86)\VMware\VMware Workstation\windows.iso"
+          - ide0:3.present = "TRUE"
       when: dh_vm_boot_disk_controller != 'ide'
     - name: "Disk controller is IDE"
       ansible.builtin.set_fact:
@@ -106,6 +114,9 @@
           - ide1:0.deviceType = "cdrom-image"
           - ide1:0.fileName = "{{ unattend_install_iso }}"
           - ide1:0.present = "TRUE"
+          - ide0:3.deviceType = "cdrom-image"
+          - ide0:3.fileName = "C:\Program Files (x86)\VMware\VMware Workstation\windows.iso"
+          - ide0:3.present = "TRUE"
       when: dh_vm_boot_disk_controller == 'ide'
   when: dh_vm_cdrom_controller | lower == 'ide'
 
@@ -122,6 +133,9 @@
           - scsi0:1.deviceType = "cdrom-image"
           - scsi0:1.fileName = "{{ unattend_install_iso }}"
           - scsi0:1.present = "TRUE"
+          - scsi0:3.deviceType = "cdrom-image"
+          - scsi0:3.fileName = "C:\Program Files (x86)\VMware\VMware Workstation\windows.iso"
+          - scsi0:3.present = "TRUE"
       when: dh_vm_boot_disk_controller not in ['buslogic', 'lsilogicsas', 'lsilogic', 'pvscsi']
     - name: "Disk controller is SCSI"
       ansible.builtin.set_fact:
@@ -132,6 +146,9 @@
           - scsi0:2.deviceType = "cdrom-image"
           - scsi0:2.fileName = "{{ unattend_install_iso }}"
           - scsi0:2.present = "TRUE"
+          - scsi0:3.deviceType = "cdrom-image"
+          - scsi0:3.fileName = "C:\Program Files (x86)\VMware\VMware Workstation\windows.iso"
+          - scsi0:3.present = "TRUE"
       when: dh_vm_boot_disk_controller in ['buslogic', 'lsilogicsas', 'lsilogic', 'pvscsi']
   when: dh_vm_cdrom_controller | lower == 'scsi'
 

@@ -4,7 +4,7 @@
 # Get VM guest OS IP address on Windows host when
 # VMware Tools is installed in guest
 #
-- name: "Initizalize VM guest IP address"
+- name: "Initialize VM guest IP address"
   ansible.builtin.set_fact:
     dh_vm_guest_ip: ''
 
@@ -13,11 +13,25 @@
     win_vmrun_get_ip_cmd: >-
       Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws getGuestIPAddress "{{ dh_vm_vmx_path }}" -wait' -NoNewWindow
 
-- name: "Gettinng VM guest IP address"
-  include_tasks: ../../windows/utils/win_execute_cmd.yml
-  vars:
-    win_powershell_cmd: "{{ win_vmrun_get_ip_cmd }}"
-    vm_guest_ip: "{{ host_machine_hostname }}"
+- name: "Pull Guest IP with vmrun"
+  ansible.windows.win_shell: "{{ win_vmrun_get_ip_cmd }}"
+  delay: 20
+# "vmrun getGuestIPAddress -wait" have 5 minutes timeout,so 5 retires failed after 26 minutes
+  retries: 5
+  delegate_to: "{{ host_machine_hostname }}"
+  register: get_ip_status
+  until:
+    - get_ip_status is defined
+    - get_ip_status.stdout_lines is defined
+    - get_ip_status.stdout_lines | length != 0
+    - "'Error' not in get_ip_status.stdout_lines[0]"
+
+- name: "Display the get_ip_status result"
+  ansible.builtin.debug: var=get_ip_status
+
+- name: "Set fact of guest IP"
+  ansible.builtin.set_fact:
+    dh_vm_guest_ip: "{{ get_ip_status.stdout_lines[0] }}"
 
 - name: "Display VM guest IP address"
   ansible.builtin.debug:

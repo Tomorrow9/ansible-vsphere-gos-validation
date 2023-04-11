@@ -96,7 +96,7 @@ dh_new_vm: true
 # For Windows host machine, set it in this format "\\\\192.168.1.10\\Images",
 # for Linux host machine, set it in this format "192.168.1.10:/Images".
 # Otherwise, please comment it out or set it to empty string ''.
-iso_nfs_server_path: "\\\\192.168.1.10\\Images"
+# iso_nfs_server_path: "\\\\192.168.1.10\\Images"
 
 # Set parameter 'dh_guest_iso_path' in these 3 situations:
 # (1) if parameter 'iso_nfs_server_path' is configured, set 'dh_guest_iso_path' to the ISO file relative path to the mounted directory.
@@ -117,6 +117,11 @@ dh_guest_iso_path: "OS\\Windows\\Windows10\\windows.iso"
 # iso_nfs_server_username: ""
 # iso_nfs_server_password: ""
 
-dh_guest_unattend_install_conf: "Windows/win10/efi/Autounattend.xml"
+# Http Server path for download ISO,can be GOSVPUB or GOSV WDC mirror
+# If parameter 'iso_http_server_path' is configured, http download ISO to host will be enabled.
+# iso_http_server_path+dh_guest_iso_path should be the full URL of the ISO.
+iso_http_server_path: "http://sc2-prd-isi-haproxy101-vip.eng.vmware.com/cdn/standard/cpbu-gosv/gosv-images/"
+
+dh_guest_unattend_install_conf: "Windows/win10/efi/dh_Autounattend.xml"
 dh_guest_windows_has_inbox_driver: false
 dh_guest_windows_product_key: ""

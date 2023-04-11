@@ -27,7 +27,7 @@
         unattend_install_file_list: "{{ unattend_install_file_list + pvscsi_file_path_list }}"
   when:
     - boot_disk_controller is defined
-    - boot_disk_controller == 'paravirtual'
+    - boot_disk_controller == 'paravirtual' or boot_disk_controller == 'pvscsi'
     - windows_has_inbox_driver is undefined or not windows_has_inbox_driver
 
 - name: "Create Autounattend ISO file"

@@ -16,8 +16,7 @@
 - name: "Pull Guest IP with vmrun"
   ansible.windows.win_shell: "{{ win_vmrun_get_ip_cmd }}"
   delay: 20
-# "vmrun getGuestIPAddress -wait" have 5 minutes timeout,so 5 retires failed after 26 minutes
-  retries: 5
+  retries: "{{ dh_guest_getip_retry_times | default(10) }}"
   delegate_to: "{{ host_machine_hostname }}"
   register: get_ip_status
   until:

@@ -125,3 +125,5 @@ iso_http_server_path: "http://sc2-prd-isi-haproxy101-vip.eng.vmware.com/cdn/stan
 dh_guest_unattend_install_conf: "Windows/win10/efi/dh_Autounattend.xml"
 dh_guest_windows_has_inbox_driver: false
 dh_guest_windows_product_key: ""
+# Each retry take 5 minutes
+dh_guest_getip_retry_times: 10

@@ -24,7 +24,7 @@
 #          when:
 #            - dh_new_vm is not undefined or dh_new_vm | bool
 #
-        - name: "Make Guest VM is exists"
+        - name: "Make sure Guest VM is exists"
           ansible.builtin.assert:
             that:
               - dh_vm_exists

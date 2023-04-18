@@ -8,6 +8,10 @@
 # https://docs.vmware.com/en/VMware-Fusion/13/com.vmware.fusion.using.doc/GUID-FF306A59-080E-497E-857D-F45125927FB3.html
 #
 
+- name: "Pause 60 seconds,wait auto logon"
+  ansible.builtin.pause:
+    seconds: 60
+
 - name: "Initialize facts for powershell_path"
   ansible.builtin.set_fact:
     powershell_path: 'C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe'

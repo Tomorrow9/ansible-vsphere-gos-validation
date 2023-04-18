@@ -30,9 +30,9 @@
     cmd: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ dh_vm_username }} -gp {{ dh_vm_password }} reset "{{ dh_vm_vmx_path }}" -soft'
   delegate_to: "{{ host_machine_hostname }}"
 
-- name: "Pause 30 seconds,wait auto logon"
+- name: "Pause 60 seconds,wait auto logon"
   ansible.builtin.pause:
-    seconds: 30
+    seconds: 60
 
 - name: "Initialize facts for powershell_cmd"
   ansible.builtin.set_fact:

@@ -23,5 +23,5 @@
       Start-Process -FilePath "{{ dh_host_vmrun_path }}" -ArgumentList '-T ws listSnapshots "{{ dh_vm_vmx_path }}"' -NoNewWindow
     vm_guest_ip: "{{ host_machine_hostname }}"
 
-- name: "Display the VM snaphosts"
+- name: "Display the VM snapshots"
   ansible.builtin.debug: var=win_powershell_cmd_output.stdout_lines

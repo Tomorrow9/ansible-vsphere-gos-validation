@@ -8,17 +8,13 @@
 # https://docs.vmware.com/en/VMware-Fusion/13/com.vmware.fusion.using.doc/GUID-FF306A59-080E-497E-857D-F45125927FB3.html
 #
 
-- name: "Pause 60 seconds,wait auto logon"
-  ansible.builtin.pause:
-    seconds: 60
-
 - name: "Initialize facts for powershell_path"
   ansible.builtin.set_fact:
     powershell_path: 'C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe'
 
 - name: "Initialize facts for vmrun_with_powershell"
   ansible.builtin.set_fact:
-    vmrun_with_powershell: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ dh_vm_username }} -gp {{ dh_vm_password }} runProgramInGuest "{{ dh_vm_vmx_path }}" -activeWindow -interactive {{ powershell_path }}'
+    vmrun_with_powershell: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ dh_vm_username }} -gp {{ dh_vm_password }} runProgramInGuest "{{ dh_vm_vmx_path }}" -activeWindow {{ powershell_path }}'
 
 - name: "Initialize facts for powershell_cmd"
   ansible.builtin.set_fact:
@@ -34,9 +30,9 @@
     cmd: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ dh_vm_username }} -gp {{ dh_vm_password }} reset "{{ dh_vm_vmx_path }}" -soft'
   delegate_to: "{{ host_machine_hostname }}"
 
-- name: "Pause 60 seconds,wait auto logon"
+- name: "Pause 30 seconds,wait auto logon"
   ansible.builtin.pause:
-    seconds: 60
+    seconds: 30
 
 - name: "Initialize facts for powershell_cmd"
   ansible.builtin.set_fact:
@@ -47,8 +43,10 @@
     cmd: '{{ vmrun_with_powershell }} {{ powershell_cmd }}'
   delegate_to: "{{ host_machine_hostname }}"
 
-- name: "Initialize facts for powershell_cmd"
+- name: "Initialize facts for vmrun_with_powershell and powershell_cmd"
   ansible.builtin.set_fact:
+    # add -interactive for firefox windows
+    vmrun_with_powershell: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ dh_vm_username }} -gp {{ dh_vm_password }} runProgramInGuest "{{ dh_vm_vmx_path }}" -activeWindow -interactive {{ powershell_path }}'
     powershell_cmd: "[System.Diagnostics.Process]::Start('firefox','https://www.vmware.com')"
 
 - name: "Open www.vmware.com with firefox"

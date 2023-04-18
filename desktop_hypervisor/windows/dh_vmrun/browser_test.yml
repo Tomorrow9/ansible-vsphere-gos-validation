@@ -1,0 +1,69 @@
+# Copyright 2023 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+#
+# Using vmrun to install choco and firefox
+# Open www.vmware.com with firefox
+# See more example of vmrun in
+# https://docs.vmware.com/en/VMware-Fusion/13/com.vmware.fusion.using.doc/GUID-FF306A59-080E-497E-857D-F45125927FB3.html
+#
+
+- name: "Initialize facts for powershell_path"
+  ansible.builtin.set_fact:
+    powershell_path: 'C:\windows\system32\WindowsPowerShell\v1.0\powershell.exe'
+
+- name: "Initialize facts for vmrun_with_powershell"
+  ansible.builtin.set_fact:
+    vmrun_with_powershell: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ host_machine_username }} -gp {{ host_machine_password }} runProgramInGuest "{{ dh_vm_vmx_path }}" -activeWindow -interactive {{ powershell_path }}'
+
+- name: "Initialize facts for powershell_cmd"
+  ansible.builtin.set_fact:
+    powershell_cmd: "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+
+- name: "Install choco"
+  ansible.windows.win_command:
+    cmd: '{{ vmrun_with_powershell }} {{ powershell_cmd }}'
+  delegate_to: "{{ host_machine_hostname }}"
+
+- name: "Need a reboot"
+  ansible.windows.win_command:
+    cmd: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ host_machine_username }} -gp {{ host_machine_password }} reset "{{ dh_vm_vmx_path }}" -soft'
+  delegate_to: "{{ host_machine_hostname }}"
+
+- name: "Pause 30 seconds,wait auto logon"
+  ansible.builtin.pause:
+    seconds: 30
+
+- name: "Initialize facts for powershell_cmd"
+  ansible.builtin.set_fact:
+    powershell_cmd: '"choco install firefox -y";Start-Sleep -s 10'
+
+- name: "Install firefox with choco"
+  ansible.windows.win_command:
+    cmd: '{{ vmrun_with_powershell }} {{ powershell_cmd }}'
+  delegate_to: "{{ host_machine_hostname }}"
+
+- name: "Initialize facts for powershell_cmd"
+  ansible.builtin.set_fact:
+    powershell_cmd: "[System.Diagnostics.Process]::Start('firefox','https://www.vmware.com')"
+
+- name: "Open www.vmware.com with firefox"
+  ansible.windows.win_command:
+    cmd: '{{ vmrun_with_powershell}} {{ powershell_cmd }}'
+  delegate_to: "{{ host_machine_hostname }}"
+
+- name: "Pause 10 seconds"
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: "Get VNC port"
+  ansible.windows.win_command:
+    cmd: '"{{ dh_host_vmrun_path }}" -T ws -gu {{ host_machine_username }} -gp {{ host_machine_password }} readVariable "{{ dh_vm_vmx_path }}" runtimeConfig remotedisplay.vnc.port'
+  register: vnc_port
+  delegate_to: "{{ host_machine_hostname }}"
+
+- name: "Take a VM screenshot after browser test"
+  ansible.builtin.shell: "vncdo -v -s {{ host_machine_hostname }}::{{ vnc_port.stdout_lines[0] }} capture {{ current_test_log_folder }}/vm_screenshot_after_check_browser_test.png"
+  register: vncdo_take_screenshot
+- name: "Display the vncdotool taking screenshot result"
+  ansible.builtin.debug: var=vncdo_take_screenshot

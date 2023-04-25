@@ -85,7 +85,11 @@
                 - not dh_host_nest_virtual
           when:
             - not is_vsphere_env
-            - not (win_vbs_status_guest | int == 1)
+            - not (win_vbs_status_guest | int == 1 or win_vbs_status_guest | int == 2)
+            # win_vbs_status_guest =
+            #    0. VBS is not enabled.
+            #    1. VBS is enabled but not running.
+            #    2. VBS is enabled and running.
 
         - name: "Install Workstation in Windows host"
           block:

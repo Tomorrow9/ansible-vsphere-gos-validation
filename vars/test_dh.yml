@@ -57,6 +57,7 @@ dh_vm_guest_id: "windows9-64"
 dh_vm_path: ""
 dh_vm_firmware: "efi"
 dh_vm_secureboot_enabled: false
+dh_vm_vbs_enabled: false
 dh_vm_memory_mb: 2048
 dh_vm_cpu_number: 2
 dh_vm_cpu_cores_per_socket: 1

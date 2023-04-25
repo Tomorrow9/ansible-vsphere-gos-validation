@@ -29,6 +29,7 @@ guestOS = "{{ dh_vm_guest_id }}"
 firmware = "{{ dh_vm_firmware }}"
 {% if dh_vm_firmware | lower == 'efi' %}
 uefi.secureBoot.enabled = "{{ dh_vm_secureboot_enabled }}"
+windows.vbs.enabled = "{{ dh_vm_vbs_enabled }}"
 {% endif %}
 numvcpus = "{{ dh_vm_cpu_number }}"
 cpuid.coresPerSocket = "{{ dh_vm_cpu_cores_per_socket }}"

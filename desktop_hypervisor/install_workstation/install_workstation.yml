@@ -65,6 +65,12 @@
           include_tasks: enable_host_vm_nested_virtual.yml
           when: is_vsphere_env
 
+        - name: "Get host VM VBS status"
+          include_tasks: ../../windows/utils/win_get_vbs_guest.yml
+          vars:
+            vm_guest_ip: "{{ host_machine_hostname }}"
+          when: not is_vsphere_env
+
         - name: "Check host VM nested virtualization"
           block:
             - name: "Get if host require nested virtualization"
@@ -77,7 +83,9 @@
               when:
                 - dh_host_is_vm
                 - not dh_host_nest_virtual
-          when: not is_vsphere_env
+          when:
+            - not is_vsphere_env
+            - not (win_vbs_status_guest | int == 1)
 
         - name: "Install Workstation in Windows host"
           block:

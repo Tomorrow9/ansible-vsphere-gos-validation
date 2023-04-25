@@ -69,7 +69,9 @@
           include_tasks: ../../windows/utils/win_get_vbs_guest.yml
           vars:
             vm_guest_ip: "{{ host_machine_hostname }}"
-          when: not is_vsphere_env
+          when:
+            - not is_vsphere_env
+            - guest_os_ansible_distribution_major_ver | int == 10 and guest_os_build_num | int >= 14393
 
         - name: "Check host VM nested virtualization"
           block:

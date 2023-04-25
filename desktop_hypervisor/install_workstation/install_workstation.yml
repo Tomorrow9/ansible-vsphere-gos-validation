@@ -87,6 +87,7 @@
                 - not dh_host_nest_virtual
           when:
             - not is_vsphere_env
+            - win_vbs_status_guest is defined
             - not (win_vbs_status_guest | int == 1 or win_vbs_status_guest | int == 2)
             # win_vbs_status_guest =
             #    0. VBS is not enabled.

@@ -20,6 +20,9 @@ host_machine_password: ""
 # Set the OS type of existing host machine, valid values are "windows" or "linux".
 host_machine_type: "windows"
 
+# WS build from main branch need enabled test-signing,this applies to windows host only.
+host_machine_testsigning: true
+
 # Note:
 # If you want to use existing or new deployed virtual machine as the host machine, set below parameters
 # in vars/test.yml file.

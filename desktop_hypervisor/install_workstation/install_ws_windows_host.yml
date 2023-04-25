@@ -104,6 +104,14 @@
     seconds: 30
 - name: "Enable Auto logon before host reboot"
   include_tasks: ../common/win_host_enable_autologon.yml
+
+- name: "Enable TESTSIGNING on host"
+  include_tasks: ../../windows/utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "bcdedit.exe -set TESTSIGNING ON"
+    vm_guest_ip: "{{ host_machine_hostname }}"
+  when: host_machine_testsigning is defined and host_machine_testsigning
+
 - name: "Restart host after Workstation install"
   ansible.windows.win_reboot:
     reboot_timeout: 600

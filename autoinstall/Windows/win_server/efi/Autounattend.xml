@@ -35,56 +35,57 @@
             </ImageInstall>
             <DiskConfiguration>
                 <Disk wcm:action="add">
-                    <CreatePartitions>
+                    <DiskID>0</DiskID>
+		    <WillWipeDisk>true</WillWipeDisk>
+		    <CreatePartitions>
                         <CreatePartition wcm:action="add">
                             <Order>1</Order>
-                            <Size>499</Size>
-                            <Type>Primary</Type>
-                        </CreatePartition>
-                        <CreatePartition wcm:action="add">
-                            <Order>2</Order>
-                            <Size>99</Size>
+                            <Size>100</Size>
                             <Type>EFI</Type>
                         </CreatePartition>
                         <CreatePartition wcm:action="add">
-                            <Order>4</Order>
-                            <Type>Primary</Type>
-                            <Extend>true</Extend>
-                        </CreatePartition>
+                            <Order>2</Order>
+                            <Size>16</Size>
+                            <Type>MSR</Type>
+                            </CreatePartition>
                         <CreatePartition wcm:action="add">
                             <Order>3</Order>
-                            <Size>128</Size>
-                            <Type>MSR</Type>
+                            <Extend>true</Extend>
+                            <Type>Primary</Type>
                         </CreatePartition>
-                    </CreatePartitions>
-                    <ModifyPartitions>
-                        <ModifyPartition wcm:action="add">
-                            <Order>1</Order>
-                            <PartitionID>1</PartitionID>
-                            <Label>Recovery</Label>
-                            <Format>NTFS</Format>
-							              <typeID>de94bba4-06d1-4d40-a16a-bfd50179d6ac</typeID>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
+                        <CreatePartition wcm:action="add">
                             <Order>4</Order>
-                            <PartitionID>4</PartitionID>
-                            <Label>Windows</Label>
-                            <Format>NTFS</Format>
-                        </ModifyPartition>
-                        <ModifyPartition wcm:action="add">
-                            <Order>2</Order>
-                            <PartitionID>2</PartitionID>
-							              <Format>FAT32</Format>
-                            <Label>System</Label>
-                        </ModifyPartition>
-						            <ModifyPartition wcm:action="add">
-                            <Order>3</Order>
-                            <PartitionID>3</PartitionID>
-                        </ModifyPartition>
-                    </ModifyPartitions>
-                    <DiskID>0</DiskID>
-                    <WillWipeDisk>true</WillWipeDisk>
-                </Disk>
+                            <Size>596</Size>
+                            <Type>Primary</Type>
+                        </CreatePartition>
+		    </CreatePartitions>
+                    <ModifyPartitions>
+	                <ModifyPartition wcm:action="add">
+	                    <Order>3</Order>
+	                    <PartitionID>3</PartitionID>
+	                    <Label>Windows</Label>
+	                    <Format>NTFS</Format>
+	                </ModifyPartition>
+	                <ModifyPartition wcm:action="add">
+	                    <Order>1</Order>
+	                    <PartitionID>1</PartitionID>
+	                    <Label>System</Label>
+	                    <Format>FAT32</Format>
+	                </ModifyPartition>
+	                <ModifyPartition wcm:action="add">
+	                    <Order>2</Order>
+	                    <PartitionID>2</PartitionID>
+	                    <Label>Reserved</Label>
+	                </ModifyPartition>
+	                <ModifyPartition wcm:action="add">
+	                    <Order>4</Order>
+	                    <PartitionID>4</PartitionID>
+	                    <Label>Recovery</Label>
+	                    <TypeID>de94bba4-06d1-4d40-a16a-bfd50179d6ac</TypeID>
+	                    <Format>NTFS</Format>
+	                </ModifyPartition>
+		    </ModifyPartitions>
+	    </Disk>
                 <DisableEncryptedDiskProvisioning>true</DisableEncryptedDiskProvisioning>
                 <WillShowUI>OnError</WillShowUI>
             </DiskConfiguration>

@@ -8,13 +8,16 @@
 # https://kb.vmware.com/s/article/87307
 - name: "Workaround for SYSPREP error caused by Appx package"
   block:
-    - name: "Remove BingSearch Appx package in Windows Client"
-      include_tasks: ../utils/win_remove_appx_package.yml
-      vars:
-        win_appx_package: "BingSearch"
+    - name: "Remove Appx package in Windows Client"
       when:
         - guest_os_ansible_distribution_ver is version('10.0.22000.0', '>=')
         - guest_os_product_type | lower == 'client'
+      block:    
+        - name: "Remove Appx package in Windows Client"
+          include_tasks: ../utils/win_remove_appx_package.yml
+          vars:
+            win_appx_package: "{{ item }}"
+          with_items: ["BingSearch", "Client.CoPilot"]
     - name: "Remove Edge.Stable Appx package in Windows Server"
       include_tasks: ../utils/win_remove_appx_package.yml
       vars:

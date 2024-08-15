@@ -61,7 +61,7 @@
           ansible.builtin.assert:
             that:
               - guest_id is defined and guest_id
-              - hardware_version is undefined or (hardware_version and hardware_version | int >= 13)
+              - hardware_version is undefined or (hardware_version and hardware_version | int >= 10)
             fail_msg: "Invalid variables for new VM settings"
 
         - name: "Check variables for installing OS from ISO images"

@@ -1,7 +1,7 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
 ---
-- include_tasks: win_guest_reconfig.yml
+# - include_tasks: win_guest_reconfig.yml
 
 - include_tasks: ../../common/vm_take_snapshot.yml
   vars:

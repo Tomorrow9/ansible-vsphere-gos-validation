@@ -57,7 +57,7 @@
       when:
         - win_powershell_cmd_output.stderr is defined
         - win_powershell_cmd_output.stderr
-        - guest_os_ansible_distribution is search('2019|2022')
+        - guest_os_ansible_distribution is search('2019|2022|2025')
         - win_boot_disk_ctl_type in ['lsilogicsas', 'paravirtual']
 
     - name: "Workaround for known issue"

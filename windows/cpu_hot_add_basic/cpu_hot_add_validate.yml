@@ -1,6 +1,9 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
 ---
+- name: "Display the hot added CPU number"
+  ansible.builtin.debug: var=hotadd_num
+
 - name: "Get VM facts"
   include_tasks: ../../common/vm_get_guest_facts.yml
 

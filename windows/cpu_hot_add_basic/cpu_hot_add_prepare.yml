@@ -1,11 +1,11 @@
 # Copyright 2021-2024 VMware, Inc.
 # SPDX-License-Identifier: BSD-2-Clause
 ---
-# Check VM CPU hot add enable status and VM vCPU number
-- name: "Get VM CPU info"
+# Check VM vCPU hot add enable status and VM vCPU number
+- name: "Get VM vCPU info"
   include_tasks: ../../common/vm_get_cpu_info.yml
 
-- name: "Enable VM CPU hot add or set initial VM CPU number"
+- name: "Enable VM vCPU hot add or set initial VM vCPU number"
   when: >
     (not vm_cpu_hotadd_enabled and enable_vm_cpu_hotadd) or
     (vm_cpu_num | int != initial_cpu_num | int) or
@@ -15,13 +15,13 @@
       include_tasks: ../utils/win_shutdown_restart.yml
       vars:
         set_win_power_state: "shutdown"
-    - name: "Enable VM CPU hot add"
+    - name: "Enable VM vCPU hot add"
       include_tasks: ../../common/vm_enable_cpu_hotadd.yml
       when:
         - not vm_cpu_hotadd_enabled
         - enable_vm_cpu_hotadd
 
-    - name: "Set VM CPU number to the initial value"
+    - name: "Set VM vCPU number to the initial value"
       include_tasks: ../../common/vm_set_cpu_number.yml
       vars:
         num_cores_per_socket: "{{ initial_cores_num }}"
@@ -36,10 +36,10 @@
     - name: "Refresh VM guest IP in the in-memory inventory hosts info"
       include_tasks: ../utils/win_update_inventory.yml
 
-# Validate VM CPU number in guest OS
+# Validate initial VM vCPU number in guest OS
 - name: "Get CPU info in guest OS"
   include_tasks: ../utils/win_get_cpu_cores_sockets.yml
-- name: "Check VM CPU number got in guest OS"
+- name: "Check VM vCPU number got in guest OS"
   ansible.builtin.assert:
     that:
       - win_cpu_number | int == initial_cpu_num | int

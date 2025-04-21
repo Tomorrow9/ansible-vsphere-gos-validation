@@ -2,11 +2,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ---
 # Description:
-#   This test case is used for test Windows VM vCPU hot add.
-# For Windows client: hot added CPU will not be recognized and used
-# after hot add without OS restart.
-# For Windows server: hot added CPU will be recognized and used after
-# hot add without OS restart.
+#   This test case is used for Windows Server VM vCPU hot add testing.
+# Notes:
+#   For Windows client VM, hot added CPU is not recognized and used in
+# guest OS without OS restart after vCPU hot add operation on VM. This
+# vCPU hot add feature is displayed "Not supported" in Broadcom Compatibility
+# Guide (https://compatibilityguide.broadcom.com/search?program=software&
+# persona=live&column=osVendors&order=asc). For testing purpose only, this test
+# case uses "devcon.exe" tool to get CPU info in guest OS after vCPU hot adding.
 #
 - name: cpu_hot_add_basic
   hosts: localhost
@@ -51,35 +54,37 @@
               {%- elif guest_os_product_type == 'client' -%}2
               {%- endif -%}
 
-        - name: "Generate the list of added CPU number for testing"
+        - name: "Generate hot added CPU number list for Windows Server"
           include_tasks: ../../linux/cpu_hot_add_basic/generate_cpu_hot_add_list.yml
+          when: guest_os_product_type == "server"
 
-        - name: "Skip test case when the list of added CPU number is empty"
+        - name: "Generate hot added CPU number list for Windows Client"
+          include_tasks: cpu_hot_add_win_client.yml
+          when: guest_os_product_type == "client"
+
+        - name: "Skip test case"
           include_tasks: ../../common/skip_test_case.yml
           vars:
-            skip_msg: "Test case '{{ ansible_play_name }}' is blocked because vCPU hot add test value list is empty"
+            skip_msg: "Test case '{{ ansible_play_name }}' is blocked because hot added CPU number list for testing is empty."
             skip_reason: "Blocked"
           when: cpu_hotadd_num_list | length == 0
 
-        - name: "Initialize the CPU hot add test result"
+        - name: "Initialize VM vCPU hot add test result"
           ansible.builtin.set_fact:
             cpu_hotadd_results: []
-        - name: "Preparation for CPU hot add test"
+
+        - name: "Prepare for VM vCPU hot add test"
           include_tasks: cpu_hot_add_prepare.yml
           vars:
             enable_vm_cpu_hotadd: true
-        - name: "CPU hot add test on Windows Server"
+
+        - name: "VM vCPU hot add test on generated hot added CPU number list"
           include_tasks: cpu_hot_add_validate.yml
           loop: "{{ cpu_hotadd_num_list }}"
           loop_control:
             loop_var: hotadd_num
-          when: guest_os_product_type == "server"
 
-        - name: "CPU hot add test on Windows Client"
-          include_tasks: cpu_hot_add_test_client.yml
-          when: guest_os_product_type == "client"
-
-        - name: "Display the test results"
+        - name: "Display the VM vCPU hot add test result"
           ansible.builtin.debug: var=cpu_hotadd_results
       rescue:
         - name: "Test case failure"

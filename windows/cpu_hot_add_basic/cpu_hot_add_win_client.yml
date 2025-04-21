@@ -1,0 +1,20 @@
+# Copyright 2021-2024 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# On ESXi version < 7.0.2, Windows 10 VM maximum socket is 2,
+# the added CPU number list is [2].
+# on ESXi version >= 7.0.2, Windows 10 VM maximum socket is 4,
+# here set the added CPU number list to [2, 2, 2].
+#
+- name: "Set fact of the hot added CPU number list on ESXi {{ esxi_version }}"
+  ansible.builtin.set_fact:
+    cpu_hotadd_num_list: ["{{ initial_cores_num | int }}"]
+
+- name: "Set fact of the hot added CPU number list on ESXi {{ esxi_version }}"
+  ansible.builtin.set_fact:
+    cpu_hotadd_num_list: ["{{ cpu_hotadd_num_list * 3 }}"]
+  when: esxi_version is version('7.0.2', '>=')
+
+- name: "Print the hot added CPU number list"
+  ansible.builtin.debug:
+    msg: "Hot added CPU number list for Windows client: {{ cpu_hotadd_num_list }}"

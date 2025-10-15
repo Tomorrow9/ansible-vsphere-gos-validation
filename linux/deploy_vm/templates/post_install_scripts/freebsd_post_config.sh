@@ -51,6 +51,7 @@ dhclient -n ${ifdev} >/dev/ttyu0
 sleep 10
 echo "DONE" >/dev/ttyu0
 
+ifconfig >/dev/ttyu0
 ipv4=$(ifconfig ${ifdev} | awk '/inet [0-9]+/ {print $2}')
 echo "{{ autoinstall_ipv4_msg }}$ipv4" > /dev/ttyu0
 
@@ -85,12 +86,13 @@ failed_packages=""
 for package_to_install in $packages_to_install
 do
     echo "Install package $package_to_install ..." > /dev/ttyu0
-    env ASSUME_ALWAYS_YES=YES pkg install -y $package_to_install
+    env ASSUME_ALWAYS_YES=YES pkg install -y $package_to_install > /dev/ttyu0
     ret=$?
     if [ $ret == 0 ]
     then 
         echo "Successfully installed the package $package_to_install from ISO repo" > /dev/ttyu0
     else
+	echo "Failed to install the package $package_to_install from ISO repo" > /dev/ttyu0
         failed_packages="$failed_packages $package_to_install"
     fi
 done
@@ -108,7 +110,7 @@ if [ "$failed_packages" != "" ]; then
         until [ $ret -eq 0 ] || [ $try_count -ge 10 ]
         do
             echo "Install package $package_to_install (try $try_count time) ..." > /dev/ttyu0
-            env ASSUME_ALWAYS_YES=YES pkg install -y $package_to_install
+            env ASSUME_ALWAYS_YES=YES pkg install -y $package_to_install > /dev/ttyu0
             ret=$?
             try_count=$((try_count+1))
             if [ $ret -eq 0 ]; then

@@ -47,10 +47,22 @@
           The primary network adapter's MAC address of client VM '{{ pvrdma_client_vm_name }}'
           is '{{ pvrdma_client_vm_primary_nic_mac }}'
 
-    - name: "Reset client VM '{{ pvrdma_client_vm_name }}' for updating IP address"
+    - name: "Shutdown client VM '{{ pvrdma_client_vm_name }}'"
       include_tasks: ../../common/vm_set_power_state.yml
       vars:
-        vm_power_state_set: 'restarted'
+        vm_power_state_set: "shutdown-guest"
+    - name: "Pause 5 seconds after shutdown"
+      ansible.builtin.pause:
+        seconds: 5
+    - name: "Power on client VM '{{ pvrdma_client_vm_name }}'"
+      include_tasks: ../../common/vm_set_power_state.yml
+      vars:
+        vm_power_state_set: "powered-on"
+
+    # - name: "Reset client VM '{{ pvrdma_client_vm_name }}' for updating IP address"
+    #   include_tasks: ../../common/vm_set_power_state.yml
+    #   vars:
+    #     vm_power_state_set: 'restarted'
 
     - name: "Refresh client VM's guest IP till it has different IP with server VM"
       include_tasks:

@@ -114,3 +114,10 @@
 
     - name: "Uninstall open-vm-tools packages"
       include_tasks: uninstall_ovt.yml
+
+    - name: "Take a snapshot after uninstall ovt"
+      include_tasks: ../../common/vm_take_snapshot.yml
+      vars:
+        snapshot_name: "after_uninstall_ovt"
+        dump_memory: true
+        vm_take_snapshot_ignore_err: true

@@ -45,11 +45,16 @@
                 skip_reason: "Not Applicable"
               when: vm_vbs_enabled
 
+        - name: "Get 'C:' drive encryption info before enabling secure boot"
+          include_tasks: ../utils/win_get_bitlocker_vol_info.yml
         - name: "Enable VM secure boot test"
           include_tasks: change_secureboot_config.yml
           vars:
             change_secureboot: 'enable'
-        - name: "Disable VM secure boot test"
+
+       - name: "Get 'C:' drive encryption info before disabling secure boot"
+         include_tasks: ../utils/win_get_bitlocker_vol_info.yml
+       - name: "Disable VM secure boot test"
           include_tasks: change_secureboot_config.yml
           vars:
             change_secureboot: 'disable'

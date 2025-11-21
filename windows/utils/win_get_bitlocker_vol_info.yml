@@ -16,6 +16,7 @@
   include_tasks: win_execute_cmd.yml
   vars:
     win_powershell_cmd: "Get-BitLockerVolume -MountPoint {{ win_bde_volume }} | Format-List"
+    win_execute_cmd_ignore_error: true
 
 - name: "Set fact of the dict of the encryption info"
   ansible.builtin.set_fact:

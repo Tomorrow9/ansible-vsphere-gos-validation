@@ -18,7 +18,7 @@
   block:
     - name: "Set installation command for inbox version of WSL"
       ansible.builtin.set_fact:
-        wsl_install_cmd: "wsl --install --inbox -d {{ wsl_distribution_name }} *> '{{ wsl_file_path_win }}\\wsl_install.txt'"
+        wsl_install_cmd: "wsl.exe --install --inbox -d {{ wsl_distribution_name }} *> '{{ wsl_file_path_win }}\\wsl_install.txt'"
       when:
         - guest_os_build_num | int < 25267
         - guest_os_build_num | int >= 22000
@@ -40,7 +40,7 @@
   when: guest_os_product_type == 'server'
   block:
     - name: "Install WSL and distribution"
-      ansible.windows.win_shell: "wsl --install -d {{ wsl_distribution_name }} *> '{{ wsl_file_path_win }}\\wsl_install.txt'"
+      ansible.windows.win_shell: "wsl.exe --install -d {{ wsl_distribution_name }} *> '{{ wsl_file_path_win }}\\wsl_install.txt'"
       register: win_powershell_cmd_output
       ignore_errors: true
       delegate_to: "{{ vm_guest_ip }}"

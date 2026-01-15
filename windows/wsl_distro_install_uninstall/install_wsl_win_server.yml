@@ -1,0 +1,49 @@
+# Copyright 2026 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+- name: "Set fact of the command for getting WSL feature"
+  ansible.builtin.set_fact:
+    win_get_wsl_feature: "Get-WindowsFeature | where-object DisplayName -match 'Windows Subsystem for Linux'"
+
+- name: "Get WSL feature"
+  include_tasks: ../utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "{{ win_get_wsl_feature }}"
+
+- name: "No WSL feature available"
+  ansible.builtin.fail:
+    msg: "Not get 'Windows Subsystem for Linux' feature info in {{ guest_os_ansible_distribution }}."
+  when:
+    - win_powershell_cmd_output.stdout is defined
+    - win_powershell_cmd_output.stdout | length == 0
+
+- name: "Get WSL feature state"
+  include_tasks: ../utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: >-
+      $wsl_status = 'NA';
+      $wsl_feature = {{ win_get_wsl_feature }};
+      if ($wsl_feature) {$wsl_status = $wsl_feature.Installed};
+      Write-Host $wsl_status
+
+- name: "Install WSL feature"
+  include_tasks: ../utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "Install-WindowsFeature -Name Microsoft-Windows-Subsystem-Linux"
+  when:
+    - win_powershell_cmd_output.stdout is defined
+    - win_powershell_cmd_output.stdout == 'False'
+
+- name: "Pause 5 seconds after changing"
+  ansible.builtin.pause:
+    seconds: 5
+
+- name: "Restart guest OS"
+  include_tasks: ../utils/win_shutdown_restart.yml
+  vars:
+    set_win_power_state: "restart"
+
+- name: "Update WSL"
+  include_tasks: ../utils/win_execute_cmd.yml
+  vars:
+    win_powershell_cmd: "wsl.exe --update --web-download"

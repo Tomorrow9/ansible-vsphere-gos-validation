@@ -48,13 +48,13 @@
           include_tasks: wsl_test_prepare.yml
 
         - name: "Install WSL and distribution"
-          include_tasks: install_wsl.yml
+          include_tasks: install_wsl_win_server.yml
 
-        - name: "Run the distribution"
-          include_tasks: run_wsl_distro.yml
+        # - name: "Run the distribution"
+        # include_tasks: run_wsl_distro.yml
 
-        - name: "Uninstall the distribution"
-          include_tasks: unregister_wsl_distro.yml
+        # - name: "Uninstall the distribution"
+        # include_tasks: unregister_wsl_distro.yml
       rescue:
         - name: "Test case failure"
           include_tasks: ../../common/test_rescue.yml

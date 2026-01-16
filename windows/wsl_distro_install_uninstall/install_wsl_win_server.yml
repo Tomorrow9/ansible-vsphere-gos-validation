@@ -46,4 +46,7 @@
 - name: "Update WSL"
   include_tasks: ../utils/win_execute_cmd.yml
   vars:
-    win_powershell_cmd: "wsl.exe --update --web-download"
+    win_powershell_cmd: >-
+      $result = wsl.exe --update --web-download;
+      $clean_result = $result -replace '\\u0000','';
+      Write-host $clean_result

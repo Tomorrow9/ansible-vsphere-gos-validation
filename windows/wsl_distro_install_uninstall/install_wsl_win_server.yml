@@ -26,27 +26,33 @@
       if ($wsl_feature) {$wsl_status = $wsl_feature.Installed};
       Write-Host $wsl_status
 
-- name: "Install WSL feature"
-  include_tasks: ../utils/win_execute_cmd.yml
-  vars:
-    win_powershell_cmd: "Install-WindowsFeature -Name Microsoft-Windows-Subsystem-Linux"
+- name: "WSL feature is available and not installed"
   when:
     - win_powershell_cmd_output.stdout is defined
-    - win_powershell_cmd_output.stdout == 'False'
+    - win_powershell_cmd_output.stdout | trim == 'False'
+  block:
+    - name: "Install WSL feature"
+      include_tasks: ../utils/win_execute_cmd.yml
+      vars:
+        win_powershell_cmd: "Install-WindowsFeature -Name Microsoft-Windows-Subsystem-Linux"
 
-- name: "Pause 5 seconds after changing"
-  ansible.builtin.pause:
-    seconds: 5
+    - name: "Pause 5 seconds after changing"
+      ansible.builtin.pause:
+        seconds: 5
 
-- name: "Restart guest OS"
-  include_tasks: ../utils/win_shutdown_restart.yml
-  vars:
-    set_win_power_state: "restart"
+    - name: "Restart guest OS"
+      include_tasks: ../utils/win_shutdown_restart.yml
+      vars:
+        set_win_power_state: "restart"
+
+- name: "WSL feature is installed"
+  ansible.builtin.debug:
+    msg: "WSL feature is already installed in guest OS."
+  when:
+    - win_powershell_cmd_output.stdout is defined
+    - win_powershell_cmd_output.stdout | trim == 'True'
 
 - name: "Update WSL"
   include_tasks: ../utils/win_execute_cmd.yml
   vars:
-    win_powershell_cmd: >-
-      $result = wsl.exe --update --web-download;
-      $clean_result = $result -replace '\\u0000','';
-      Write-host $clean_result
+    win_powershell_cmd: "$result = wsl.exe --update --web-download; $clean_result = $result -replace '\\u0000',''; Write-host $clean_result

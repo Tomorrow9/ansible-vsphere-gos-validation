@@ -26,13 +26,17 @@ local nicName = agama.findByID(agama.lshw, 'network').logicalname;
   product: {
     id: "SLES"
   },
-  software: {
+  modes: {
+    id: "standard",
+    software: {
     mandatory_patterns: [
       "enhanced_base"
     ],
     mandatory_packages: [
       "SLES-release"
-    ],
+    ]
+  },
+  software: {
     patterns: {
       add: ["gnome"]
     },

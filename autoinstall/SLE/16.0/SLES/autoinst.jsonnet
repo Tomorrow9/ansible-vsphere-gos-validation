@@ -34,8 +34,12 @@ local nicName = agama.findByID(agama.lshw, 'network').logicalname;
     ],
     mandatory_packages: [
       "SLES-release"
+    ],
+    user_patterns: [
+      "sles_sap_minimal_sap"
     ]
-  },
+  }
+ },
   software: {
     patterns: {
       add: ["gnome"]

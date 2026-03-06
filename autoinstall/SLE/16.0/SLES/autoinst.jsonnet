@@ -27,20 +27,6 @@ local nicName = agama.findByID(agama.lshw, 'network').logicalname;
     id: "SLES",
     mode: "standard"
   },
-  modes: {
-    id: "standard",
-    software: {
-    mandatory_patterns: [
-      "enhanced_base"
-    ],
-    mandatory_packages: [
-      "SLES-release"
-    ],
-    user_patterns: [
-      "sles_sap_minimal_sap"
-    ]
-  }
- },
   software: {
     patterns: {
       add: ["gnome"]
@@ -50,6 +36,12 @@ local nicName = agama.findByID(agama.lshw, 'network').logicalname;
       "cloud-init",
       "tpm2-tss-engine-devel",
       "tpm2.0-tools"
+    ],
+    mandatory_patterns: [
+      "enhanced_base"
+    ],
+    mandatory_packages: [
+      "SLES-release"
     ]
   },
 {% if new_user is defined and new_user %}

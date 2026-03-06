@@ -23,24 +23,24 @@ local findBiggestDisk(disks) =
 local nicName = agama.findByID(agama.lshw, 'network').logicalname;
 
 {
-  product: {
-    id: "SLES",
-    mode: "standard"
+  "product": {
+    "id": "SLES",
+    "mode": "standard"
   },
-  software: {
-    patterns: {
-      add: ["gnome"]
+  "software": {
+    "patterns": {
+      "add": ["gnome"]
     },
-    packages: [
+    "packages": [
       "openssh-server-config-rootlogin",
       "cloud-init",
       "tpm2-tss-engine-devel",
       "tpm2.0-tools"
     ],
-    mandatory_patterns: [
+    "mandatoryPatterns": [
       "enhanced_base"
     ],
-    mandatory_packages: [
+    "mandatoryPackages": [
       "SLES-release"
     ]
   },

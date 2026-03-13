@@ -20,6 +20,16 @@
       {%- else -%}UUID={{ partition_uuid }}
       {%- endif -%}
 
+- name: "Add debug info for FreeBSD"
+  when: guest_os_family == 'FreeBSD'
+  block:
+    - name: "List /dev/ folder info"
+      ansible.builtin.shell: "ls -lh /dev"
+      changed_when: false
+    - name: "List /dev/gptid/ folder info"
+      ansible.builtin.shell: "ls -lh /dev/gptid"
+      changed_when: false
+
 # Mount new disk partition
 - name: "Mount {{ new_partition_mount_src }} to {{ new_partition_mount_path }}"
   include_tasks: ../utils/set_mount_point.yml

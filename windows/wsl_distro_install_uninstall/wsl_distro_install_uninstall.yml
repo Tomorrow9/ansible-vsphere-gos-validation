@@ -53,7 +53,7 @@
         # 'wsl.exe' command in guest OS directly.
         - name: "Set fact of the WSL install source"
           ansible.builtin.set_fact:
-            wsl_install_source: "github"
+            wsl_install_source: "cmd"
 
         - name: "Prepare WSL testing"
           include_tasks: wsl_test_prepare.yml

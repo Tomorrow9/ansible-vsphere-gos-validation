@@ -14,14 +14,21 @@
       Write-host $clean_result
     win_execute_cmd_ignore_error: true
 
+- name: "Getting WSL status failed"
+  ansible.builtin.fail:
+    msg: >-
+      Getting WSL status failed with error message '{{ win_powershell_cmd_output.stderr }}'.
+  when:
+    - win_powershell_cmd_output.stderr is defined
+    - win_powershell_cmd_output.stderr | length != 0
+
 - name: "Set fact of the WSL default version"
   ansible.builtin.set_fact:
     wsl_default_version: " {{ win_powershell_cmd_output.stdout.strip() | regex_replace('(?s).*Default Version:\\s*(\\d+).*', '\\1') | regex_replace('[^0-9]', '') }}"
   when:
     - win_powershell_cmd_output.rc is defined
     - win_powershell_cmd_output.rc == 0
-    - win_powershell_cmd_output.stderr is defined
-    - win_powershell_cmd_output.stderr | length == 0
+    - win_powershell_cmd_output.stderr is undefined or win_powershell_cmd_output.stderr | length == 0
     - win_powershell_cmd_output.stdout is defined
     - win_powershell_cmd_output.stdout | length != 0
 

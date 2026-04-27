@@ -16,8 +16,7 @@
 
 - name: "Getting WSL status failed"
   ansible.builtin.fail:
-    msg: >-
-      Getting WSL status failed with error message '{{ win_powershell_cmd_output.stderr }}'.
+    msg: "Getting WSL status failed with error message: {{ win_powershell_cmd_output.stderr | replace('\\u0000', '') }}".
   when:
     - win_powershell_cmd_output.stderr is defined
     - win_powershell_cmd_output.stderr | length != 0

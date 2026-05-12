@@ -16,8 +16,9 @@
 
         - name: "Download script file on ESXi host"
           ansible.builtin.get_url:
-            url: "https://lvn-dbc2406.lvn.broadcom.net/wg010216/public_html/pkupdate/read_efivar.py"
+            url: "https://gosv-images.lvn.broadcom.net/OS/read_efivar.py"
             dest: "{{ script_path }}"
+            mode: '0777'
             validate_certs: false
           delegate_to: "{{ esxi_hostname }}"
           register: script_download

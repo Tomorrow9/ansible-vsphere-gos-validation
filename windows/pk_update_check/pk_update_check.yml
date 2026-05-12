@@ -1,0 +1,32 @@
+# Copyright 2026 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+- name: pk_update_check
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: "Test case block"
+      block:
+        - name: "Test setup"
+          include_tasks: ../setup/test_setup.yml
+
+        - name: "Set fact of the downloaded script file path"
+          ansible.builtin.set_fact:
+            script_path: "{{ datastore }}/read_efivar.py"
+
+        - name: "Download script file on ESXi host"
+          ansible.builtin.get_url:
+            url: "https://lvn-dbc2406.lvn.broadcom.net/wg010216/public_html/pkupdate/read_efivar.py"
+            dest: "{{ script_path }}"
+            validate_certs: false
+          delegate_to: "{{ esxi_hostname }}"
+          register: script_download
+
+        - name: "Run test script on ESXi host to check PK"
+          ansible.builtin.shell: "{{ script_path }} {{ vm_vmx_path }} PK"
+          delegate_to: "{{ esxi_hostname }}"
+          register: get_pk_info
+          changed_when: false
+      rescue:
+        - name: "Test case failure"
+          include_tasks: ../../common/test_rescue.yml

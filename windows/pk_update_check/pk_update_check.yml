@@ -12,7 +12,7 @@
 
         - name: "Set fact of the downloaded script file path"
           ansible.builtin.set_fact:
-            script_path: "{{ datastore }}/read_efivar.py"
+            script_path: "/vmfs/volumes/{{ datastore }}/read_efivar.py"
 
         - name: "Download script file on ESXi host"
           ansible.builtin.get_url:

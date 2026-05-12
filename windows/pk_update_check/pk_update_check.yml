@@ -12,19 +12,19 @@
 
         - name: "Set fact of the downloaded script file path"
           ansible.builtin.set_fact:
-            script_path: "/vmfs/volumes/{{ datastore }}/read_efivar.py"
+            script_path: "/vmfs/volumes/gosv-images/OS/read_efivar.py"
 
-        - name: "Download script file on ESXi host"
-          ansible.builtin.get_url:
-            url: "https://gosv-images.lvn.broadcom.net/OS/read_efivar.py"
-            dest: "{{ script_path }}"
-            mode: '0777'
-            validate_certs: false
-          delegate_to: "{{ esxi_hostname }}"
-          register: script_download
+            # - name: "Download script file on ESXi host"
+            #  ansible.builtin.get_url:
+            # url: "https://gosv-images.lvn.broadcom.net/OS/read_efivar.py"
+            # dest: "{{ script_path }}"
+            # mode: '0777'
+            # validate_certs: false
+            # delegate_to: "{{ esxi_hostname }}"
+            # register: script_download
 
         - name: "Run test script on ESXi host to check PK"
-          ansible.builtin.shell: "{{ script_path }} {{ vm_vmx_path }} PK"
+          ansible.builtin.shell: "/bin/python {{ script_path }} {{ vm_vmx_path }} PK"
           delegate_to: "{{ esxi_hostname }}"
           register: get_pk_info
           changed_when: false

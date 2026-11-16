@@ -2,13 +2,24 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ---
 # Description:
-#   This test case is for WSL 2 and Linux distribution installation testing
-# in Windoows guest OS.
-# The Windows Subsystem for Linux (WSL) is available for installation on:
-# 1. Windows Server 2019 (version 1709) and later
-#    https://docs.microsoft.com/en-us/windows/wsl/install-on-server
-# 2. Windows 10 version 2004 and higher (Build 19041 and higher) or Windows 11
-#    https://docs.microsoft.com/en-us/windows/wsl/install
+#   This test case verifies WSL 2 and Linux distribution installation,
+# execution, and distribution unregistration in Windows guest OS.
+# Notes:
+# 1. WSL 2 Support Status:
+#   Windows Client: WSL 2 is available in Windows 11 or Windows 10 version 1903
+# or later. Windows 10 versions 1903 and 1909 require x64 builds 18362.1049
+# and 18363.1049 or later, respectively. ARM64 requires Windows 10 version 2004,
+# Build 19041 or later.
+# https://learn.microsoft.com/en-us/windows/wsl/install-manual
+#   Windows Server: Windows Server 2022 (Build 20348) and Windows Server 2025
+# (Build 26100) support WSL 2.
+# https://learn.microsoft.com/en-us/windows/wsl/install-on-server
+# 2. Test Case Support Status:
+#   Windows Client: This test requires Windows 10 version 2004, Build 19041 or later,
+# or Windows 11 for the automated installation commands.
+# https://learn.microsoft.com/en-us/windows/wsl/install
+#   Windows Server: This test targets Windows Server 2022 and Windows Server 2025,
+# Windows Server SAC/AC releases are excluded.
 #
 - name: wsl_distro_install_uninstall
   hosts: localhost
@@ -33,11 +44,16 @@
         - name: "Skip test case"
           include_tasks: ../../common/skip_test_case.yml
           vars:
-            skip_msg: "WSL is not supported by {{ guest_os_ansible_distribution }} with build number {{ guest_os_build_num }} "
+            skip_msg: >-
+              WSL 2 test is not supported by {{ guest_os_ansible_distribution }}
+              ({{ guest_os_ansible_architecture }}, build {{ guest_os_build_num }}).
+              This test requires 64-bit Windows 10 build 19041 or later, Windows 11,
+              or Windows Server 2022 or later.
             skip_reason: "Not Supported"
           when: >
             (guest_os_ansible_distribution_major_ver | int < 10) or
-            (guest_os_product_type == 'server' and guest_os_build_num | int < 16299) or
+            (guest_os_ansible_architecture == '32-bit') or
+            (guest_os_product_type == 'server' and guest_os_build_num | int < 20348) or
             (guest_os_product_type == 'client' and guest_os_build_num | int < 19041)
 
         - name: "Skip test case"

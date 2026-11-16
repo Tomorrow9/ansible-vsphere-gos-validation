@@ -4,9 +4,14 @@
 - name: "Install WSL distribution"
   ansible.windows.win_shell: >-
     $result = wsl.exe --install {{ wsl_distribution_name }};
+    $wsl_exit_code = $LASTEXITCODE;
     $clean_result = $result -replace '\u0000','';
-    Write-host $clean_result
+    Write-host $clean_result;
+    exit $wsl_exit_code
   delegate_to: "{{ vm_guest_ip }}"
+  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
+  become_method: runas
+  become_user: Administrator
   register: wsl_distro_install_result
   ignore_errors: true
   async: 600
@@ -19,11 +24,16 @@
 - name: "Retry to list installed WSL distribution"
   ansible.windows.win_shell: >-
     $result = wsl.exe --list;
+    $wsl_exit_code = $LASTEXITCODE;
     $clean_result = $result -replace '\u0000','';
-    Write-host $clean_result
+    Write-host $clean_result;
+    exit $wsl_exit_code
   register: list_wsl_distro_result
   ignore_errors: true
   delegate_to: "{{ vm_guest_ip }}"
+  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
+  become_method: runas
+  become_user: Administrator
   ignore_unreachable: true
   until:
     - list_wsl_distro_result.rc is defined

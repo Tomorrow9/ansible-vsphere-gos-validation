@@ -60,9 +60,15 @@
   when: win_check_file_exist_result
 
 - name: "Get installed WSL version info"
-  include_tasks: ../utils/win_execute_cmd.yml
-  vars:
-    win_powershell_cmd: >-
-      $result = wsl.exe --version;
-      $clean_result = $result -replace '\u0000','';
-      Write-host $clean_result
+  ansible.windows.win_shell: >-
+    $result = wsl.exe --version;
+    $wsl_exit_code = $LASTEXITCODE;
+    $clean_result = $result -replace '\u0000','';
+    Write-host $clean_result;
+    exit $wsl_exit_code
+  register: win_powershell_cmd_output
+  delegate_to: "{{ vm_guest_ip }}"
+  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
+  become_method: runas
+  become_user: Administrator
+  changed_when: false

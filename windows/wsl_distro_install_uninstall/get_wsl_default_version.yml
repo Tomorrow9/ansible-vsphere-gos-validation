@@ -6,13 +6,19 @@
     wsl_default_version: 0
 
 - name: "Get installed WSL status"
-  include_tasks: ../utils/win_execute_cmd.yml
-  vars:
-    win_powershell_cmd: >-
-      $result = wsl.exe --status;
-      $clean_result = $result -replace '\u0000','';
-      Write-host $clean_result
-    win_execute_cmd_ignore_error: true
+  ansible.windows.win_shell: >-
+    $result = wsl.exe --status;
+    $wsl_exit_code = $LASTEXITCODE;
+    $clean_result = $result -replace '\u0000','';
+    Write-host $clean_result;
+    exit $wsl_exit_code
+  register: win_powershell_cmd_output
+  delegate_to: "{{ vm_guest_ip }}"
+  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
+  become_method: runas
+  become_user: Administrator
+  ignore_errors: true
+  changed_when: false
 
 - name: "Set fact of the WSL default version"
   ansible.builtin.set_fact:

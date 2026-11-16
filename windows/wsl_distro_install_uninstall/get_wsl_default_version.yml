@@ -6,30 +6,21 @@
     wsl_default_version: 0
 
 - name: "Get installed WSL status"
-  ansible.windows.win_shell: >-
-    $result = wsl.exe --status;
-    $wsl_exit_code = $LASTEXITCODE;
-    $clean_result = $result -replace '\u0000','';
-    Write-host $clean_result;
-    exit $wsl_exit_code
-  register: win_powershell_cmd_output
-  delegate_to: "{{ vm_guest_ip }}"
-  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
-  become_method: runas
-  become_user: Administrator
-  ignore_errors: true
-  changed_when: false
+  include_tasks: execute_wsl_command.yml
+  vars:
+    wsl_command: "wsl.exe --status"
+    wsl_command_ignore_errors: true
 
 - name: "Set fact of the WSL default version"
   ansible.builtin.set_fact:
-    wsl_default_version: " {{ win_powershell_cmd_output.stdout.strip() | regex_replace('(?s).*Default Version:\\s*(\\d+).*', '\\1') | regex_replace('[^0-9]', '') }}"
+    wsl_default_version: " {{ win_wsl_cmd_output.stdout.strip() | regex_replace('(?s).*Default Version:\\s*(\\d+).*', '\\1') | regex_replace('[^0-9]', '') }}"
   when:
-    - win_powershell_cmd_output.rc is defined
-    - win_powershell_cmd_output.rc == 0
-    - win_powershell_cmd_output.stderr is defined
-    - win_powershell_cmd_output.stderr | length == 0
-    - win_powershell_cmd_output.stdout is defined
-    - win_powershell_cmd_output.stdout | length != 0
+    - win_wsl_cmd_output.rc is defined
+    - win_wsl_cmd_output.rc == 0
+    - win_wsl_cmd_output.stderr is defined
+    - win_wsl_cmd_output.stderr | length == 0
+    - win_wsl_cmd_output.stdout is defined
+    - win_wsl_cmd_output.stdout | length != 0
 
 - name: "Print the WSL default version got in guest OS"
   ansible.builtin.debug: var=wsl_default_version

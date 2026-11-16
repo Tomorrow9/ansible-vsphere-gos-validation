@@ -19,17 +19,9 @@
   when: wsl_default_version_original | int == 1
   block:
     - name: "Set the WSL default version to 2"
-      ansible.windows.win_shell: >-
-        $result = wsl.exe --set-default-version 2;
-        $wsl_exit_code = $LASTEXITCODE;
-        $clean_result = $result -replace '\u0000','';
-        Write-host $clean_result;
-        exit $wsl_exit_code
-      register: win_powershell_cmd_output
-      delegate_to: "{{ vm_guest_ip }}"
-      become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
-      become_method: runas
-      become_user: Administrator
+      include_tasks: execute_wsl_command.yml
+      vars:
+        wsl_command: "wsl.exe --set-default-version 2"
     - name: "Get WSL default version after setting"
       include_tasks: get_wsl_default_version.yml
 

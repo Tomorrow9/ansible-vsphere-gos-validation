@@ -7,26 +7,18 @@
     distro_command: "cat /etc/os-release"
 
 - name: "Run the command '{{ distro_command }}' in WSL distribution"
-  ansible.windows.win_shell: >-
-    $result = wsl -d {{ wsl_distribution_name }} {{ distro_command }};
-    $wsl_exit_code = $LASTEXITCODE;
-    $clean_result = $result -replace '\u0000','';
-    Write-host $clean_result;
-    exit $wsl_exit_code
-  register: win_powershell_cmd_output
-  delegate_to: "{{ vm_guest_ip }}"
-  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
-  become_method: runas
-  become_user: Administrator
-  ignore_errors: true
+  include_tasks: execute_wsl_command.yml
+  vars:
+    wsl_command: "wsl -d {{ wsl_distribution_name }} {{ distro_command }}"
+    wsl_command_ignore_errors: true
 
 - name: "Check the result of the command executed in WSL distribution"
   ansible.builtin.assert:
     that:
-      - win_powershell_cmd_output.rc is defined
-      - win_powershell_cmd_output.rc == 0
-      - win_powershell_cmd_output.stderr is defined
-      - win_powershell_cmd_output.stderr | length == 0
-      - win_powershell_cmd_output.stdout is defined
-      - win_powershell_cmd_output.stdout is search(wsl_distribution_name)
-    fail_msg: "Executing command '{{ distro_command }}' in WSL distribution returns error message: {{ win_powershell_cmd_output.stderr | default('') | replace('\u0000', '') }}, or not get the distribution '{{ wsl_distribution_name }}' info in the command output: {{ win_powershell_cmd_output.stdout | default('') }}."
+      - win_wsl_cmd_output.rc is defined
+      - win_wsl_cmd_output.rc == 0
+      - win_wsl_cmd_output.stderr is defined
+      - win_wsl_cmd_output.stderr | length == 0
+      - win_wsl_cmd_output.stdout is defined
+      - win_wsl_cmd_output.stdout is search(wsl_distribution_name)
+    fail_msg: "Executing command '{{ distro_command }}' in WSL distribution returns error message: {{ win_wsl_cmd_output.stderr | default('') | replace('\u0000', '') }}, or not get the distribution '{{ wsl_distribution_name }}' info in the command output: {{ win_wsl_cmd_output.stdout | default('') }}."

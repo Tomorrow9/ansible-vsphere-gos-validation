@@ -2,45 +2,28 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ---
 - name: "Unregister the installed WSL distribution"
-  ansible.windows.win_shell: >-
-    $result = wsl.exe --unregister {{ wsl_distribution_name }};
-    $wsl_exit_code = $LASTEXITCODE;
-    $clean_result = $result -replace '\u0000','';
-    Write-host $clean_result;
-    exit $wsl_exit_code
-  register: win_powershell_cmd_output
-  delegate_to: "{{ vm_guest_ip }}"
-  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
-  become_method: runas
-  become_user: Administrator
+  include_tasks: execute_wsl_command.yml
+  vars:
+    wsl_command: "wsl.exe --unregister {{ wsl_distribution_name }}"
 
 - name: "Pause 10 seconds after distribution unregister"
   ansible.builtin.pause:
     seconds: 10
 
 - name: "Get WSL distribution status after unregister"
-  ansible.windows.win_shell: >-
-    $result = wsl.exe --list;
-    $wsl_exit_code = $LASTEXITCODE;
-    $clean_result = $result -replace '\u0000','';
-    Write-host $clean_result;
-    exit $wsl_exit_code
-  register: win_powershell_cmd_output
-  delegate_to: "{{ vm_guest_ip }}"
-  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
-  become_method: runas
-  become_user: Administrator
-  ignore_errors: true
-  changed_when: false
+  include_tasks: execute_wsl_command.yml
+  vars:
+    wsl_command: "wsl.exe --list"
+    wsl_command_ignore_errors: true
 
 - name: "Check there is no WSL distribution after unregister"
   ansible.builtin.assert:
     that:
-      - win_powershell_cmd_output.rc is defined
-      - win_powershell_cmd_output.rc == 0
-      - win_powershell_cmd_output.stdout is defined
-      - win_powershell_cmd_output.stdout is search("has no installed distributions")
+      - win_wsl_cmd_output.rc is defined
+      - win_wsl_cmd_output.rc == 0
+      - win_wsl_cmd_output.stdout is defined
+      - win_wsl_cmd_output.stdout is search("has no installed distributions")
     fail_msg: >-
       List WSL distribution failed after executing unregister WSL distribution
       '{{ wsl_distribution_name }}' command or not found key string 'has no installed distributions'
-      in the output '{{ win_powershell_cmd_output.stdout | default('') }}'.
+      in the output '{{ win_wsl_cmd_output.stdout | default('') }}'.

@@ -1,0 +1,24 @@
+# Copyright 2026 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Execute a WSL command, remove null characters, and preserve its exit code.
+# Parameters:
+#   wsl_command: Complete WSL command to execute.
+#   wsl_command_ignore_errors: Ignore command failures (default: false).
+# Return:
+#   win_wsl_cmd_output: Command execution result.
+#
+- name: "Execute WSL command"
+  ansible.windows.win_shell: >-
+    $result = {{ wsl_command }};
+    $wsl_exit_code = $LASTEXITCODE;
+    $clean_result = $result -replace '\u0000','';
+    Write-host $clean_result;
+    exit $wsl_exit_code
+  register: win_wsl_cmd_output
+  delegate_to: "{{ vm_guest_ip }}"
+  become: "{{ guest_os_product_type == 'server' and guest_os_build_num | int == 20348 }}"
+  become_method: runas
+  become_user: Administrator
+  ignore_errors: "{{ wsl_command_ignore_errors | default(false) }}"
+  ignore_unreachable: true
